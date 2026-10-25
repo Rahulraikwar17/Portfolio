@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 const IMAGE_SRC = "/me2.png";
@@ -38,9 +38,31 @@ const ArrowUpRight = () => (
   </svg>
 );
 
+const mask = (gradient) => ({
+  maskImage: gradient,
+  WebkitMaskImage: gradient,
+});
+
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 768px)").matches,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const handler = (e) => setIsDesktop(e.matches);
+
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  return isDesktop;
+};
+
 const HeroSection = () => {
   const containerRef = useRef(null);
-  const photoRef = useRef(null);
   const photoShiftRef = useRef(null);
   const lettersRef = useRef([]);
   const roleRef = useRef(null);
@@ -50,7 +72,18 @@ const HeroSection = () => {
   const linksRef = useRef([]);
   const scrollRef = useRef(null);
 
-  /* Role rotate */
+  const isDesktop = useIsDesktop();
+
+  const bottomSpace = isDesktop ? 150 : 110;
+
+  const horizontalMask = isDesktop
+    ? "linear-gradient(to right, transparent 0%, #000 30%, #000 82%, transparent 100%)"
+    : "linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%)";
+
+  const verticalMask = isDesktop
+    ? "linear-gradient(to bottom, transparent 0%, #000 10%, #000 86%, transparent 100%)"
+    : "linear-gradient(to bottom, transparent 0%, #000 10%, #000 60%, transparent 100%)";
+
   useEffect(() => {
     let i = 0;
     const id = setInterval(() => {
@@ -76,7 +109,6 @@ const HeroSection = () => {
     return () => clearInterval(id);
   }, []);
 
-  /* Intro */
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       gsap.set(lettersRef.current, { yPercent: 115, rotate: 5 });
@@ -147,44 +179,26 @@ const HeroSection = () => {
     <div
       ref={containerRef}
       id="home"
-      className="relative h-[100svh] min-h-[620px] w-full overflow-hidden bg-[#050505] font-['Space_Grotesk',sans-serif] text-white"
+      className="relative h-[100svh] min-h-[700px] w-full overflow-hidden bg-[#050505] font-['Space_Grotesk',sans-serif] text-white md:min-h-[620px]"
     >
-      {/* coral glow + soft grid */}
-      <div className="pointer-events-none absolute right-[6%] top-[18%] h-[55vh] w-[38vw] rounded-full bg-[#ff6b3d]/25 blur-[130px]" />
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.08]"
         style={{
           backgroundImage:
             "linear-gradient(#ff6b3d 1px, transparent 1px), linear-gradient(90deg, #ff6b3d 1px, transparent 1px)",
           backgroundSize: "64px 64px",
-          maskImage:
+          ...mask(
             "radial-gradient(ellipse 70% 60% at 30% 40%, black, transparent)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 70% 60% at 30% 40%, black, transparent)",
+          ),
         }}
       />
 
-      {/* PHOTO: image ke apne edges fade hote hain (left, right, top, bottom), isliye cut nahi dikhta */}
-      <div className="absolute bottom-[30px] right-0 top-0 opacity-60 md:right-[10vw] md:opacity-100">
-        <div
-          className="h-full"
-          style={{
-            maskImage:
-              "linear-gradient(to right, transparent 0%, #000 30%, #000 82%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, #000 30%, #000 82%, transparent 100%)",
-          }}
-        >
-          <div
-            className="h-full"
-            style={{
-              maskImage:
-                "linear-gradient(to bottom, transparent 0%, #000 10%, #000 86%, transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to bottom, transparent 0%, #000 10%, #000 86%, transparent 100%)",
-            }}
-          >
-            <div ref={photoRef} className="relative h-full">
+      <div className="pointer-events-none absolute right-[6%] top-[18%] hidden h-[55vh] w-[38vw] rounded-full bg-[#ff6b3d]/20 blur-[130px] md:block" />
+
+      <div className="absolute inset-x-0 top-0 h-[62svh] pt-20 md:inset-x-auto md:bottom-[30px] md:right-[10vw] md:h-auto md:pt-0">
+        <div className="h-full" style={mask(horizontalMask)}>
+          <div className="h-full" style={mask(verticalMask)}>
+            <div className="relative h-full">
               <div
                 ref={photoShiftRef}
                 className="relative h-full will-change-transform"
@@ -192,9 +206,11 @@ const HeroSection = () => {
                 <img
                   src={IMAGE_SRC}
                   alt="Rahul Raikwar"
-                  className="block h-full w-auto max-w-none"
+                  className="block h-full w-full max-w-none object-cover object-top md:w-auto md:object-fill"
                   style={{
-                    filter: "grayscale(1) contrast(1.08) brightness(0.92)",
+                    filter: isDesktop
+                      ? "grayscale(1) contrast(1.08) brightness(0.92)"
+                      : "grayscale(1) contrast(1.1) brightness(1.05)",
                   }}
                   draggable={false}
                 />
@@ -204,30 +220,35 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* left overlay (text readable) */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/70 to-transparent md:via-[#050505]/20" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 via-45% to-transparent md:hidden" />
+      <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-r from-[#050505] via-[#050505]/20 to-transparent md:block" />
 
-      {/* CONTENT */}
-      <section className="relative z-10 flex h-full items-center px-5 pb-[150px] pt-20 md:px-10">
+      <section
+        className="relative z-10 flex h-full items-end px-5 pt-20 md:items-center md:px-10"
+        style={{ paddingBottom: bottomSpace }}
+      >
         <div className="w-full max-w-7xl">
           <div
             ref={badgeRef}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-sm text-white/80 backdrop-blur"
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs text-white/80 backdrop-blur sm:text-sm"
           >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ff6b3d] opacity-80" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[#ff6b3d]" />
             </span>
-            Available for freelance and full-time roles
+            <span className="sm:hidden">Available for work</span>
+            <span className="hidden sm:inline">
+              Available for freelance and full-time roles
+            </span>
           </div>
 
-          <h1 className="lemonmilk-font text-[min(14vw,15svh)] font-medium uppercase leading-[0.86] tracking-tighter md:text-[min(10.5vw,17svh)]">
+          <h1 className="lemonmilk-font text-[min(16vw,15svh)] font-medium uppercase leading-[0.86] tracking-tighter md:text-[min(10.5vw,17svh)]">
             {renderWord(NAME, 0, false)}
             {renderWord(SURNAME, NAME.length, true)}
           </h1>
 
-          <div className="mt-5 flex items-center gap-3 text-lg font-medium md:text-2xl">
-            <span className="h-px w-10 bg-[#ff6b3d]" />
+          <div className="mt-4 flex items-center gap-3 text-lg font-medium md:mt-5 md:text-2xl">
+            <span className="h-px w-8 bg-[#ff6b3d] md:w-10" />
             <span className="inline-block h-[1.4em] overflow-hidden leading-[1.4]">
               <span ref={roleRef} className="inline-block text-[#ff9068]">
                 {ROLES[0]}
@@ -237,16 +258,19 @@ const HeroSection = () => {
 
           <p
             ref={copyRef}
-            className="mt-4 max-w-md text-base leading-relaxed text-whitemd:text-lg [@media(max-height:820px)]:hidden"
+            className="mt-4 hidden max-w-md text-base leading-relaxed text-white/70 md:block md:text-lg [@media(max-height:820px)]:hidden"
           >
             I build full-stack web apps, from interfaces that feel alive to the
             APIs and databases behind them.
           </p>
 
-          <div ref={ctaRef} className="mt-7 flex flex-wrap items-center gap-4">
+          <div
+            ref={ctaRef}
+            className="mt-6 flex w-full items-center gap-3 md:mt-7 md:w-auto md:gap-4"
+          >
             <a
               href="#projects"
-              className="group inline-flex items-center gap-2 rounded-full bg-[#ff6b3d] px-7 py-3.5 text-sm font-semibold text-[#050505] shadow-[0_0_40px_-8px_#ff6b3d] transition-transform duration-300 hover:scale-[1.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#ff6b3d] px-5 py-3.5 text-sm font-semibold text-[#050505] transition-transform duration-300 hover:scale-[1.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:flex-none md:px-7"
             >
               View projects
               <span className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
@@ -255,13 +279,13 @@ const HeroSection = () => {
             </a>
             <a
               href="#contact"
-              className="rounded-full border border-white/25 px-7 py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:border-[#ff6b3d] hover:text-[#ff9068] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ff6b3d]"
+              className="inline-flex flex-1 items-center justify-center rounded-full border border-white/25 bg-black/30 px-5 py-3.5 text-sm font-semibold text-white backdrop-blur transition-colors duration-300 hover:border-[#ff6b3d] hover:text-[#ff9068] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ff6b3d] md:flex-none md:px-7"
             >
               Contact me
             </a>
           </div>
 
-          <ul className="mt-7 flex flex-wrap gap-x-7 gap-y-2 text-sm text-white/60">
+          <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/70 md:mt-7 md:gap-x-7 md:text-white/60">
             {LINKS.map((l, i) => (
               <li
                 key={l.label}
@@ -284,7 +308,6 @@ const HeroSection = () => {
         </div>
       </section>
 
-      {/* scroll cue */}
       <a
         ref={scrollRef}
         href="#skills"
@@ -308,7 +331,6 @@ const HeroSection = () => {
         </svg>
       </a>
 
-      {/* MARQUEE (alag component) */}
     </div>
   );
 };
