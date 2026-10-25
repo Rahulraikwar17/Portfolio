@@ -78,7 +78,7 @@ const Row = ({ items, direction, duration }) => {
   );
 };
 
-const SkillsMarquee = () => (
+const Marquee = () => (
   <section
     id="skills"
     className="flex flex-col gap-10 bg-[#050505] py-16 font-['Space_Grotesk',sans-serif]"
@@ -103,4 +103,4 @@ const SkillsMarquee = () => (
   </section>
 );
 
-export default SkillsMarquee;
+export default Marquee;

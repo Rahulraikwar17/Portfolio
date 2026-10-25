@@ -10,7 +10,8 @@ import Skills from "./components/Skills";
 import About from "./components/About";
 import CustomCursor from "./components/CustomCursor";
 import Contact from "./components/Contact";
-import Marquee from "./components/marquee";
+import Marquee from "./components/Marquee";
+
 import BeeFlyer from "./components/BeeFlyer";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -21,7 +22,7 @@ const App = () => {
       duration: 1.5,
       smoothWheel: true,
     });
-    window.lenis = lenis; // Navbar isse scroll karwayega
+    window.lenis = lenis;
 
     lenis.on("scroll", ScrollTrigger.update);
 
@@ -48,7 +49,7 @@ const App = () => {
       <main>
         <HeroSection />
         <About />
-        <Marquee />
+        <Marquee/>
         <Skills />
         <Projects />
         <Contact />
