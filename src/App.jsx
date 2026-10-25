@@ -10,9 +10,9 @@ import Skills from "./components/Skills";
 import About from "./components/About";
 import CustomCursor from "./components/CustomCursor";
 import Contact from "./components/Contact";
-import Marquee from "./components/Marquee.jsx";
 
 import BeeFlyer from "./components/BeeFlyer";
+import Marquee from "./components/marquee";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,11 +49,12 @@ const App = () => {
       <main>
         <HeroSection />
         <About />
-        <Marquee/>
+        <Marquee />
+
         <Skills />
         <Projects />
         <Contact />
-     <BeeFlyer start="top-left" />
+        <BeeFlyer start="top-left" />
       </main>
     </div>
   );
