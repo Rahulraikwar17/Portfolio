@@ -10,7 +10,7 @@ import Skills from "./components/Skills";
 import About from "./components/About";
 import CustomCursor from "./components/CustomCursor";
 import Contact from "./components/Contact";
-import Marquee from "./components/Marquee";
+import Marquee from "./components/Marquee.jsx";
 
 import BeeFlyer from "./components/BeeFlyer";
 
