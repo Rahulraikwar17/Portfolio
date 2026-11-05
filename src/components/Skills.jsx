@@ -1,7 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 
-
 import {
   FaHtml5,
   FaCss3Alt,
@@ -10,8 +9,12 @@ import {
   FaGitAlt,
   FaNodeJs,
 } from "react-icons/fa";
-import { SiTailwindcss, SiGreensock, SiExpress, SiMongodb } from "react-icons/si";
-
+import {
+  SiTailwindcss,
+  SiGreensock,
+  SiExpress,
+  SiMongodb,
+} from "react-icons/si";
 
 import { MousePointerClick, Hand } from "lucide-react";
 
@@ -112,13 +115,11 @@ const skills = [
 const BASE_SIZE = 560;
 const ORBIT_DURATION = 22;
 
-
 const getOrbitSize = () => {
   if (typeof window === "undefined") return BASE_SIZE;
 
   const byWidth = window.innerWidth - 24;
   const byHeight = window.innerHeight - 230;
-
 
   return Math.max(280, Math.min(BASE_SIZE, byWidth, byHeight));
 };
@@ -140,7 +141,6 @@ const Skills = () => {
   const [size, setSize] = useState(getOrbitSize);
   const [isTouch, setIsTouch] = useState(false);
 
- 
   const s = size / BASE_SIZE;
   const radius = 210 * s;
   const nodeSize = Math.max(54, 76 * s);
@@ -153,8 +153,6 @@ const Skills = () => {
   const centerText = Math.max(20, 36 * s);
   const cardWidth = Math.max(170, 230 * s);
 
-
-
   useEffect(() => {
     const handleResize = () => setSize(getOrbitSize());
 
@@ -164,8 +162,6 @@ const Skills = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -215,17 +211,14 @@ const Skills = () => {
         ease: "none",
       });
 
-      innerTweens.current = skillRefs.current
-        .filter(Boolean)
-        .map((el) =>
-          gsap.to(el.querySelector(".skill-inner"), {
-            rotation: -360,
-            duration: ORBIT_DURATION,
-            repeat: -1,
-            ease: "none",
-          }),
-        );
-
+      innerTweens.current = skillRefs.current.filter(Boolean).map((el) =>
+        gsap.to(el.querySelector(".skill-inner"), {
+          rotation: -360,
+          duration: ORBIT_DURATION,
+          repeat: -1,
+          ease: "none",
+        }),
+      );
 
       gsap.to(centerRef.current, {
         scale: 1.04,
@@ -239,7 +232,6 @@ const Skills = () => {
 
     return () => ctx.revert();
   }, []);
-
 
   const resetVisuals = () => {
     skillRefs.current.forEach((el) => {
@@ -269,7 +261,6 @@ const Skills = () => {
       gsap.to(tween, { timeScale: speed, duration });
     });
   };
-
 
   const handleSkillEnter = (skill) => {
     resetVisuals();
@@ -326,7 +317,6 @@ const Skills = () => {
     setOrbitSpeed(1, 0.6);
   };
 
-
   const handlePointerEnter = (event, skill) => {
     if (event.pointerType === "mouse") handleSkillEnter(skill);
   };
@@ -338,7 +328,6 @@ const Skills = () => {
   const handleClick = (event, skill) => {
     event.stopPropagation();
 
-
     if (lastPointer.current === "mouse") return;
 
     if (activeRef.current?.id === skill.id) handleSkillLeave();
@@ -349,13 +338,12 @@ const Skills = () => {
     if (activeRef.current) handleSkillLeave();
   };
 
-
   return (
     <section
       ref={sectionRef}
       onClick={handleSectionClick}
       id="skills"
-      className="relative w-full overflow-hidden bg-[#090909] text-white"
+      className="relative w-full overflow-hidden bg-[#000] text-white"
       style={{ minHeight: `max(100svh, ${size + 260}px)` }}
     >
       <div className="relative z-20 px-4 pt-20 text-center md:pt-24">
@@ -364,12 +352,10 @@ const Skills = () => {
         </p>
       </div>
 
-
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{ width: size, height: size }}
       >
-      
         <div
           ref={ringRef}
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.09]"
@@ -381,7 +367,6 @@ const Skills = () => {
           style={{ width: innerRing, height: innerRing }}
         />
 
-   
         <div ref={orbitRef} className="absolute inset-0 rounded-full">
           {skills.map((skill, index) => {
             const angle = (index / skills.length) * Math.PI * 2;
@@ -390,7 +375,6 @@ const Skills = () => {
             const Icon = skill.icon;
 
             return (
-         
               <div
                 key={skill.id}
                 className="absolute"
@@ -415,7 +399,6 @@ const Skills = () => {
                   onPointerLeave={handlePointerLeave}
                   onClick={(e) => handleClick(e, skill)}
                   onFocus={(e) => {
-              
                     if (e.currentTarget.matches(":focus-visible")) {
                       handleSkillEnter(skill);
                     }
@@ -440,7 +423,6 @@ const Skills = () => {
           })}
         </div>
 
-  
         <div
           ref={centerRef}
           className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#FF6B3D] text-black"
@@ -456,7 +438,6 @@ const Skills = () => {
           </LiquidText>
         </div>
 
-     
         <div
           ref={detailRef}
           className="pointer-events-none absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 opacity-0"
@@ -485,7 +466,6 @@ const Skills = () => {
           )}
         </div>
       </div>
-
 
       <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-white/30 md:bottom-10 md:tracking-[0.35em]">
         {isTouch ? (

@@ -1,8 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
-
-
 const CORAL = "#ff6b3d";
 const INK = "#0b0b0d";
 
@@ -12,12 +10,12 @@ const lerpAngle = (a, b, t) => {
 };
 
 export const createBee = () => {
-  const bee = new THREE.Group(); 
-  const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.05, ...extra });
-
+  const bee = new THREE.Group();
+  const std = (color, extra = {}) =>
+    new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.05, ...extra });
 
   const abd = new THREE.SphereGeometry(0.5, 48, 32);
-  abd.rotateZ(Math.PI / 2); 
+  abd.rotateZ(Math.PI / 2);
   abd.scale(1.15, 0.78, 0.78);
   const pos = abd.attributes.position;
   const colors = new Float32Array(pos.count * 3);
@@ -42,7 +40,6 @@ export const createBee = () => {
   head.position.set(0.88, 0.02, 0);
   bee.add(head);
 
-
   [1, -1].forEach((s) => {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.095, 20, 16), std("#ffffff", { roughness: 0.2 }));
     eye.position.set(1.0, 0.09, 0.15 * s);
@@ -51,7 +48,6 @@ export const createBee = () => {
     bee.add(eye, pupil);
   });
 
-
   const up = new THREE.Vector3(0, 1, 0);
   [1, -1].forEach((s) => {
     const dir = new THREE.Vector3(0.55, 0.8, 0.45 * s).normalize();
@@ -59,17 +55,18 @@ export const createBee = () => {
     const base = new THREE.Vector3(0.95, 0.22, 0.07 * s);
     ant.position.copy(base).addScaledVector(dir, 0.25);
     ant.quaternion.setFromUnitVectors(up, dir);
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 10), std(CORAL, { emissive: CORAL, emissiveIntensity: 0.4 }));
+    const tip = new THREE.Mesh(
+      new THREE.SphereGeometry(0.035, 12, 10),
+      std(CORAL, { emissive: CORAL, emissiveIntensity: 0.4 })
+    );
     tip.position.copy(base).addScaledVector(dir, 0.5);
     bee.add(ant, tip);
   });
-
 
   const sting = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.24, 12), std("#050505"));
   sting.rotation.z = Math.PI / 2;
   sting.position.x = -0.85;
   bee.add(sting);
-
 
   [1, -1].forEach((s) => {
     [0.3, 0.46, 0.62].forEach((x, k) => {
@@ -80,7 +77,6 @@ export const createBee = () => {
       bee.add(leg);
     });
   });
-
 
   const wingMat = new THREE.MeshStandardMaterial({
     color: "#dff0ff",
@@ -94,13 +90,13 @@ export const createBee = () => {
     const shape = new THREE.Shape();
     shape.absellipse(0, 0, rx, ry, 0, Math.PI * 2, false, 0);
     const g = new THREE.ShapeGeometry(shape, 28);
-    g.translate(0, ry, 0); 
+    g.translate(0, ry, 0);
     return g;
   };
   const wings = [];
   [1, -1].forEach((s) => {
     [
-      { rx: 0.3, ry: 0.78, sweep: -0.12 }, 
+      { rx: 0.3, ry: 0.78, sweep: -0.12 },
       { rx: 0.22, ry: 0.52, sweep: 0.55 },
     ].forEach(({ rx, ry, sweep }) => {
       const pivot = new THREE.Group();
@@ -117,6 +113,30 @@ export const createBee = () => {
 };
 
 const HINT_CSS = `
+
+.bee-spawn[data-spawn="hidden"] { opacity: 0; visibility: hidden; }
+
+.bee-spawn[data-spawn="glitch"] { animation: bee-spawn-glitch 0.9s linear forwards; }
+
+@keyframes bee-spawn-glitch {
+  0%   { opacity: 0;  transform: translate(0, 0) skewX(0);
+         filter: drop-shadow(-6px 0 #00e5ff) drop-shadow(6px 0 #ff2d6f); }
+  8%   { opacity: 1;  transform: translate(-6px, 2px) skewX(-14deg);
+         filter: drop-shadow(-8px 0 #00e5ff) drop-shadow(8px 0 #ff2d6f); }
+  14%  { opacity: 0;  transform: translate(4px, -2px) skewX(10deg); }
+  22%  { opacity: .9; transform: translate(6px, 0) skewX(12deg);
+         filter: drop-shadow(8px 0 #00e5ff) drop-shadow(-8px 0 #ff2d6f); }
+  30%  { opacity: .2; transform: translate(-4px, 1px) skewX(-6deg); }
+  40%  { opacity: 1;  transform: translate(3px, -1px) skewX(5deg); }
+  52%  { opacity: 0;  transform: translate(-2px, 0); }
+  60%  { opacity: 1;  transform: translate(0, 0) skewX(0);
+         filter: drop-shadow(-4px 0 #00e5ff) drop-shadow(4px 0 #ff2d6f); }
+  72%  { opacity: .5; transform: translate(2px, 0) skewX(-4deg); }
+  82%  { opacity: 1;  transform: translate(-1px, 0);
+         filter: drop-shadow(-2px 0 #00e5ff) drop-shadow(2px 0 #ff2d6f); }
+  100% { opacity: 1;  transform: none; filter: none; }
+}
+
 .bee-hint { opacity: 0; }
 .bee-hint[data-phase="in"]  { animation: bee-flick-in 0.75s linear forwards; }
 .bee-hint[data-phase="out"] { animation: bee-flick-out 0.45s linear forwards; }
@@ -173,6 +193,7 @@ const HINT_CSS = `
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .bee-spawn[data-spawn="glitch"] { animation: none; opacity: 1; }
   .bee-hint[data-phase="in"]  { animation: none; opacity: 1; }
   .bee-hint[data-phase="out"] { animation: none; opacity: 0; }
   .bee-hint[data-phase="in"] .bee-hint-text,
@@ -181,17 +202,18 @@ const HINT_CSS = `
 }
 `;
 
-
+const CANVAS_SCALE = 2;
 const SIZE_MOBILE = 120;
 const SIZE_DESKTOP = 144;
-const EDGE = 8; 
 
 const BeeFlyer = ({
   href = "#contact",
   label = "Hire me",
   hint = "hire me",
   hintEvery = 10000,
-  start = "bottom-left",
+  spawnDelay = 3000,
+  startX = 0.3,
+  startY = 0.3,
   className = "",
 }) => {
   const rootRef = useRef(null);
@@ -204,6 +226,9 @@ const BeeFlyer = ({
   const [dragging, setDragging] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [hintPhase, setHintPhase] = useState("off");
+
+  const [spawnPhase, setSpawnPhase] = useState("hidden");
+
   const applyPos = (x, y) => {
     const el = rootRef.current;
     if (!el) return;
@@ -214,25 +239,29 @@ const BeeFlyer = ({
     el.style.transform = `translate3d(${nx}px, ${ny}px, 0)`;
   };
 
-
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
-    const s = el.offsetWidth;
-    const left = start.endsWith("left");
-    const bottom = start.startsWith("bottom");
-    const x = left ? EDGE : window.innerWidth - s - EDGE;
-    const y = bottom ? window.innerHeight - s - 24 : 84;
+    const x = window.innerWidth * startX;
+    const y = window.innerHeight * startY;
     applyPos(x, y);
 
     const onResize = () => applyPos(posRef.current.x, posRef.current.y);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-
   }, []);
 
+  useEffect(() => {
+    const t1 = setTimeout(() => setSpawnPhase("glitch"), spawnDelay);
+    const t2 = setTimeout(() => setSpawnPhase("done"), spawnDelay + 900);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [spawnDelay]);
 
   useEffect(() => {
+    if (spawnPhase !== "done") return;
     let t1, t2;
     const id = setInterval(() => {
       setHintPhase("in");
@@ -244,7 +273,7 @@ const BeeFlyer = ({
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [hintEvery]);
+  }, [hintEvery, spawnPhase]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -258,8 +287,8 @@ const BeeFlyer = ({
     renderer.domElement.style.display = "block";
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
-    camera.position.set(0, 2.1, 6.8);
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+    camera.position.set(0, 2.1 * CANVAS_SCALE, 6.8 * CANVAS_SCALE);
     camera.lookAt(0, 0, 0);
 
     scene.add(new THREE.AmbientLight("#ffffff", 0.9));
@@ -304,7 +333,11 @@ const BeeFlyer = ({
       const sz = 0.4 * (1 - 0.85 * st.h);
       const vx = sx * Math.cos(a) * 0.9;
       const vz = -sz * Math.sin(a) * 0.9;
-      bee.position.set(sx * Math.sin(a), 0.14 * Math.sin(t * 2.3) + 0.06 * Math.sin(t * 5.1), sz * Math.cos(a));
+      bee.position.set(
+        sx * Math.sin(a),
+        0.14 * Math.sin(t * 2.3) + 0.06 * Math.sin(t * 5.1),
+        sz * Math.cos(a)
+      );
 
       const velAng = Math.atan2(-vz, vx);
       const target = lerpAngle(velAng, -Math.PI / 2, st.h);
@@ -363,6 +396,7 @@ const BeeFlyer = ({
 
   const sizeStyle = { "--bee": `${SIZE_MOBILE}px`, "--bee-md": `${SIZE_DESKTOP}px` };
   const hintPhaseShown = hovering || dragging ? "off" : hintPhase;
+  const isSpawned = spawnPhase !== "hidden";
 
   return (
     <div
@@ -372,68 +406,67 @@ const BeeFlyer = ({
     >
       <style>{HINT_CSS}</style>
 
-    
-      <div className="absolute inset-[24%] rounded-full bg-[#ff6b3d]/20 blur-2xl" />
+      <div data-spawn={spawnPhase} className="bee-spawn pointer-events-none absolute inset-0">
+        <div className="absolute inset-[24%] rounded-full bg-[#ff6b3d]/20 blur-2xl" />
 
+        <div ref={mountRef} style={{ inset: "-50%" }} className="absolute" aria-hidden="true" />
 
-      <div ref={mountRef} className="absolute inset-0" aria-hidden="true" />
-
-   
-      <span
-        aria-hidden="true"
-        data-phase={hintPhaseShown}
-        className="bee-hint absolute left-1/2 top-[10%] -translate-x-1/2 whitespace-nowrap rounded-full border border-[#ff6b3d]/60 bg-[#050505]/80 px-2.5 py-0.5 font-['Space_Grotesk',sans-serif] text-[11px] font-semibold text-[#ff9068] backdrop-blur"
-      >
-        <span className="bee-hint-text" data-text={hint}>
-          {hint}
-        </span>
-      </span>
-
-
-      <a
-        href={href}
-        aria-label={label}
-        draggable={false}
-        onDragStart={(e) => e.preventDefault()}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        onPointerEnter={() => {
-          hoverRef.current = true;
-          setHovering(true);
-        }}
-        onPointerLeave={() => {
-          hoverRef.current = false;
-          setHovering(false);
-        }}
-        onFocus={() => {
-          hoverRef.current = true;
-          setHovering(true);
-        }}
-        onBlur={() => {
-          hoverRef.current = false;
-          setHovering(false);
-        }}
-        onClick={(e) => {
-          if (wasDragged.current) {
-            e.preventDefault(); 
-            wasDragged.current = false;
-          }
-        }}
-        style={{ touchAction: "none" }}
-        className={`pointer-events-auto absolute left-1/2 top-1/2 h-[58%] w-[58%] -translate-x-1/2 -translate-y-1/2 select-none rounded-full outline-none ${
-          dragging ? "cursor-grabbing" : "cursor-grab"
-        }`}
-      >
         <span
-          className={`absolute left-1/2 top-[88%] -translate-x-1/2 whitespace-nowrap rounded-full bg-[#ff6b3d] px-3.5 py-1 font-['Space_Grotesk',sans-serif] text-[13px] font-semibold text-[#050505] shadow-[0_0_30px_-6px_#ff6b3d] transition-all duration-300 ${
-            hovering && !dragging ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
-          }`}
+          aria-hidden="true"
+          data-phase={hintPhaseShown}
+          className="bee-hint absolute left-1/2 top-[10%] -translate-x-1/2 whitespace-nowrap rounded-full border border-[#ff6b3d]/60 bg-[#050505]/80 px-2.5 py-0.5 font-['Space_Grotesk',sans-serif] text-[11px] font-semibold text-[#ff9068] backdrop-blur"
         >
-          {label}
+          <span className="bee-hint-text" data-text={hint}>
+            {hint}
+          </span>
         </span>
-      </a>
+
+        <a
+          href={href}
+          aria-label={label}
+          tabIndex={isSpawned ? 0 : -1}
+          draggable={false}
+          onDragStart={(e) => e.preventDefault()}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onPointerEnter={() => {
+            hoverRef.current = true;
+            setHovering(true);
+          }}
+          onPointerLeave={() => {
+            hoverRef.current = false;
+            setHovering(false);
+          }}
+          onFocus={() => {
+            hoverRef.current = true;
+            setHovering(true);
+          }}
+          onBlur={() => {
+            hoverRef.current = false;
+            setHovering(false);
+          }}
+          onClick={(e) => {
+            if (wasDragged.current) {
+              e.preventDefault();
+              wasDragged.current = false;
+            }
+          }}
+          style={{ touchAction: "none" }}
+          className={`absolute left-1/2 top-1/2 h-[58%] w-[58%] -translate-x-1/2 -translate-y-1/2 select-none rounded-full outline-none ${
+            isSpawned ? "pointer-events-auto" : "pointer-events-none"
+          } ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
+        >
+          <span
+            className={`absolute left-1/2 top-[88%] -translate-x-1/2 whitespace-nowrap rounded-full bg-[#ff6b3d] px-3.5 py-1 font-['Space_Grotesk',sans-serif] text-[13px] font-semibold text-[#050505] shadow-[0_0_30px_-6px_#ff6b3d] transition-all duration-300 ${
+              hovering && !dragging ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+            }`}
+          >
+            {label}
+          </span>
+        </a>
+      </div>
     </div>
   );
 };

@@ -13,6 +13,7 @@ import Contact from "./components/Contact";
 
 import BeeFlyer from "./components/BeeFlyer";
 import Marquee from "./components/marquee";
+import Loader from "./components/Loader.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,6 +43,7 @@ const App = () => {
 
   return (
     <div className="w-full min-h-screen bg-black">
+      <Loader />
       <CustomCursor />
 
       <Navbar />
@@ -54,7 +56,7 @@ const App = () => {
         <Skills />
         <Projects />
         <Contact />
-        <BeeFlyer start="top-left" />
+        <BeeFlyer spawnDelay={5000} startX={0.2} startY={0.2} />
       </main>
     </div>
   );

@@ -68,7 +68,7 @@ const About = () => {
     <section
       ref={sectionRef}
       id="about"
-      className="relative w-full overflow-hidden bg-[#090909] px-6 py-28 text-white md:py-36"
+      className="relative w-full overflow-hidden bg-[#000] px-6 py-28 text-white md:py-36"
     >
       <div className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-[#FF6B3D]/10 blur-[140px]" />
 
