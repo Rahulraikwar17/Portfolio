@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import LiquidText from "./LiquidText";
 
 import project1 from "../assets/images/project1.png";
 import project2 from "../assets/images/project2.png";
 import project3 from "../assets/images/project3.png";
+import PsychedelicText from "./PsychedelicText.jsx";
 
 const projects = [
   {
@@ -182,14 +182,12 @@ const Projects = () => {
             Projects
           </p>
 
-          <LiquidText>
-            <h1
-              ref={titleRef}
-              className="text-4xl font-semibold tracking-tight transition-colors duration-300 hover:text-[#FF6B3D] md:text-5xl"
-            >
-              {activeProject.title}
-            </h1>
-          </LiquidText>
+          <h1
+            ref={titleRef}
+            className="text-4xl font-semibold tracking-tight transition-colors duration-300 hover:text-[#FF6B3D] md:text-5xl"
+          >
+            <PsychedelicText text={activeProject.title} strokeWidth={0.01} />
+          </h1>
         </div>
 
         <div

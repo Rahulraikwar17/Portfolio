@@ -18,8 +18,6 @@ import {
 
 import { MousePointerClick, Hand } from "lucide-react";
 
-import LiquidText from "./LiquidText";
-
 const skills = [
   {
     id: 1,
@@ -428,14 +426,12 @@ const Skills = () => {
           className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#FF6B3D] text-black"
           style={{ width: centerSize, height: centerSize }}
         >
-          <LiquidText>
-            <span
-              className="font-black tracking-[-0.08em]"
-              style={{ fontSize: centerText }}
-            >
-              Skills
-            </span>
-          </LiquidText>
+          <span
+            className="font-black tracking-[-0.08em]"
+            style={{ fontSize: centerText }}
+          >
+            Skills
+          </span>
         </div>
 
         <div

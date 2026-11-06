@@ -1,9 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import PsychedelicText from "./PsychedelicText";
 
 const IMAGE_SRC = "/me2.png";
 const NAME = "Rahul";
-const SURNAME = "Raikwar";
+
 const ROLES = [
   "Full Stack Developer",
   "Frontend Developer",
@@ -64,8 +65,10 @@ const useIsDesktop = () => {
 const HeroSection = ({ ready = true }) => {
   const containerRef = useRef(null);
   const photoShiftRef = useRef(null);
+
   const nameRef = useRef([]);
   const surnameRef = useRef([]);
+
   const roleRef = useRef(null);
   const badgeRef = useRef(null);
   const copyRef = useRef(null);
@@ -86,14 +89,18 @@ const HeroSection = ({ ready = true }) => {
     ? "linear-gradient(to bottom, transparent 0%, #000 10%, #000 86%, transparent 100%)"
     : "linear-gradient(to bottom, transparent 0%, #000 10%, #000 60%, transparent 100%)";
 
+  // Role switching animation
   useEffect(() => {
     if (!ready) return;
 
     let i = 0;
     let swap;
+
     const id = setInterval(() => {
       if (!roleRef.current) return;
+
       i = (i + 1) % ROLES.length;
+
       swap = gsap
         .timeline()
         .to(roleRef.current, {
@@ -103,12 +110,19 @@ const HeroSection = ({ ready = true }) => {
           ease: "power2.in",
         })
         .add(() => {
-          if (roleRef.current) roleRef.current.textContent = ROLES[i];
+          if (roleRef.current) {
+            roleRef.current.textContent = ROLES[i];
+          }
         })
         .fromTo(
           roleRef.current,
           { yPercent: 110, opacity: 0 },
-          { yPercent: 0, opacity: 1, duration: 0.5, ease: "power3.out" },
+          {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.5,
+            ease: "power3.out",
+          },
         );
     }, 2600);
 
@@ -118,6 +132,7 @@ const HeroSection = ({ ready = true }) => {
     };
   }, [ready]);
 
+  // Main entrance animation
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       gsap.set(
@@ -129,15 +144,21 @@ const HeroSection = ({ ready = true }) => {
         ],
         { y: 20, opacity: 0 },
       );
+
       gsap.set([...nameRef.current, ...surnameRef.current], { yPercent: 115 });
-      gsap.set(photoShiftRef.current, { scale: 1.08, opacity: 0 });
+
+      gsap.set(photoShiftRef.current, {
+        scale: 1.08,
+        opacity: 0,
+      });
+
       gsap.set(scrollRef.current, { opacity: 0 });
 
-      // Everything stays hidden and paused until the loader tells us to start.
       const tl = gsap.timeline({
         paused: true,
         defaults: { ease: "power3.out" },
       });
+
       tl.to(photoShiftRef.current, {
         scale: 1.02,
         opacity: 1,
@@ -146,23 +167,69 @@ const HeroSection = ({ ready = true }) => {
       })
         .to(
           nameRef.current,
-          { yPercent: 0, duration: 1.2, stagger: 0.05, ease: "expo.out" },
+          {
+            yPercent: 0,
+            duration: 1.2,
+            stagger: 0.05,
+            ease: "expo.out",
+          },
           0.1,
         )
         .to(
           surnameRef.current,
-          { yPercent: 0, duration: 1.2, stagger: 0.05, ease: "expo.out" },
+          {
+            yPercent: 0,
+            duration: 1.2,
+            stagger: 0.05,
+            ease: "expo.out",
+          },
           0.25,
         )
-        .to(badgeRef.current, { y: 0, opacity: 1, duration: 0.7 }, 0.15)
-        .to(copyRef.current, { y: 0, opacity: 1, duration: 0.8 }, 0.3)
-        .to(ctaRef.current, { y: 0, opacity: 1, duration: 0.8 }, 0.45)
+        .to(
+          badgeRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+          },
+          0.15,
+        )
+        .to(
+          copyRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+          },
+          0.3,
+        )
+        .to(
+          ctaRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+          },
+          0.45,
+        )
         .to(
           linksRef.current,
-          { y: 0, opacity: 1, duration: 0.6, stagger: 0.1 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.1,
+          },
           0.6,
         )
-        .to(scrollRef.current, { opacity: 1, duration: 0.8 }, 0.9);
+        .to(
+          scrollRef.current,
+          {
+            opacity: 1,
+            duration: 0.8,
+          },
+          0.9,
+        );
 
       timelineRef.current = tl;
     }, containerRef);
@@ -173,20 +240,21 @@ const HeroSection = ({ ready = true }) => {
     };
   }, []);
 
+  // Start animation after loader
   useEffect(() => {
     if (ready) timelineRef.current?.play();
   }, [ready]);
 
-  const renderWord = (word, refs, outline) => (
-    <span className="block overflow-hidden pb-[0.08em]">
+  // Render individual letters for Rahul
+  const renderName = (word) => (
+    <span className="block overflow-hidden pb-[0.08em] lemonmilk-font">
       {word.split("").map((letter, index) => (
         <span
           key={index}
           ref={(el) => {
-            refs.current[index] = el;
+            nameRef.current[index] = el;
           }}
-          className={`inline-block will-change-transform ${outline ? "text-transparent" : "text-white"}`}
-          style={outline ? { WebkitTextStroke: "1.5px #ffffff" } : undefined}
+          className="inline-block will-change-transform"
         >
           {letter}
         </span>
@@ -198,8 +266,9 @@ const HeroSection = ({ ready = true }) => {
     <div
       ref={containerRef}
       id="home"
-      className="relative h-[100svh] min-h-[700px] w-full overflow-hidden bg-[#050505] font-['Space_Grotesk',sans-serif] text-white md:min-h-[620px]"
+      className="relative h-[100svh] min-h-[700px] w-full overflow-hidden bg-[#050505] text-white md:min-h-[620px]"
     >
+      {/* Background grid */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.08]"
         style={{
@@ -212,8 +281,10 @@ const HeroSection = ({ ready = true }) => {
         }}
       />
 
+      {/* Orange glow */}
       <div className="pointer-events-none absolute right-[6%] top-[18%] hidden h-[55vh] w-[38vw] rounded-full bg-[#ff6b3d]/20 blur-[130px] md:block" />
 
+      {/* Profile image */}
       <div className="absolute inset-x-0 top-0 h-[62svh] pt-20 md:inset-x-auto md:bottom-[30px] md:right-[10vw] md:h-auto md:pt-0">
         <div className="h-full" style={mask(horizontalMask)}>
           <div className="h-full" style={mask(verticalMask)}>
@@ -225,13 +296,13 @@ const HeroSection = ({ ready = true }) => {
                 <img
                   src={IMAGE_SRC}
                   alt="Rahul Raikwar"
+                  draggable={false}
                   className="block h-full w-full max-w-none object-cover object-top md:w-auto md:object-fill"
                   style={{
                     filter: isDesktop
                       ? "grayscale(1) contrast(1.08) brightness(0.92)"
                       : "grayscale(1) contrast(1.1) brightness(1.05)",
                   }}
-                  draggable={false}
                 />
               </div>
             </div>
@@ -239,14 +310,18 @@ const HeroSection = ({ ready = true }) => {
         </div>
       </div>
 
+      {/* Overlays */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 via-45% to-transparent md:hidden" />
+
       <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-r from-[#050505] via-[#050505]/20 to-transparent md:block" />
 
+      {/* Main content */}
       <section
         className="relative z-10 flex h-full items-end px-5 pt-20 md:items-center md:px-10"
         style={{ paddingBottom: bottomSpace }}
       >
         <div className="w-full max-w-7xl">
+          {/* Availability */}
           <div
             ref={badgeRef}
             className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs text-white/80 backdrop-blur sm:text-sm"
@@ -255,26 +330,42 @@ const HeroSection = ({ ready = true }) => {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ff6b3d] opacity-80" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[#ff6b3d]" />
             </span>
+
             <span className="sm:hidden">Available for work</span>
+
             <span className="hidden sm:inline">
               Available for freelance and full-time roles
             </span>
           </div>
 
-          <h1 className="lemonmilk-font text-[min(16vw,15svh)] font-medium uppercase leading-[0.86] tracking-tighter md:text-[min(10.5vw,17svh)]">
-            {renderWord(NAME, nameRef, false)}
-            {renderWord(SURNAME, surnameRef, true)}
+          {/* Name */}
+          <h1 className="text-[min(16vw,15svh)] font-medium leading-[0.86] tracking-tighter md:text-[min(10.5vw,17svh)]">
+            {renderName(NAME)}
+
+            <span className="block overflow-visible pb-[0.08em]">
+              <PsychedelicText
+                text="raikwar"
+                className="block"
+                strokeWidth={1.5}
+              />
+            </span>
           </h1>
 
+          {/* Role */}
           <div className="mt-4 flex items-center gap-3 text-lg font-medium md:mt-5 md:text-2xl">
             <span className="h-px w-8 bg-[#ff6b3d] md:w-10" />
+
             <span className="inline-block h-[1.4em] overflow-hidden leading-[1.4]">
-              <span ref={roleRef} className="inline-block text-[#f96f45] will-change-transform">
+              <span
+                ref={roleRef}
+                className="inline-block text-[#f96f45] will-change-transform"
+              >
                 {ROLES[0]}
               </span>
             </span>
           </div>
 
+          {/* Description */}
           <p
             ref={copyRef}
             className="mt-4 hidden max-w-md text-base leading-relaxed text-white/70 md:block md:text-lg [@media(max-height:820px)]:hidden"
@@ -283,6 +374,7 @@ const HeroSection = ({ ready = true }) => {
             APIs and databases behind them.
           </p>
 
+          {/* Buttons */}
           <div
             ref={ctaRef}
             className="mt-6 flex w-full items-center gap-3 md:mt-7 md:w-auto md:gap-4"
@@ -296,6 +388,7 @@ const HeroSection = ({ ready = true }) => {
                 <ArrowUpRight />
               </span>
             </a>
+
             <a
               href="#contact"
               className="inline-flex flex-1 items-center justify-center rounded-full border border-white/25 bg-black/30 px-5 py-3.5 text-sm font-semibold text-white backdrop-blur transition-colors duration-300 hover:border-[#ff6b3d] hover:text-[#ff9068] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ff6b3d] md:flex-none md:px-7"
@@ -304,6 +397,7 @@ const HeroSection = ({ ready = true }) => {
             </a>
           </div>
 
+          {/* Social links */}
           <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/70 md:mt-7 md:gap-x-7 md:text-white/60">
             {LINKS.map((l, i) => (
               <li
@@ -327,6 +421,7 @@ const HeroSection = ({ ready = true }) => {
         </div>
       </section>
 
+      {/* Scroll indicator */}
       <a
         ref={scrollRef}
         href="#skills"

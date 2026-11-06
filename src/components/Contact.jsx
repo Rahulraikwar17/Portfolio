@@ -4,7 +4,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight, Check, Copy, Mail, Phone } from "lucide-react";
 import { FaGithub, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
 import { BsDiscord } from "react-icons/bs";
-import LiquidText from "./LiquidText";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,14 +11,25 @@ const EMAIL = "rahulraikwae350@gmail.com";
 const PHONE_DISPLAY = "+91 88178 92814";
 const PHONE_LINK = "+918817892814";
 
-// Optional artwork: put a dark image at public/contact-face.jpg and it shows up on the right (desktop only).
-const FACE_IMAGE = "/contact-face.jpg";
+const FACE_IMAGE = "/contact-face2.jpg";
 
 const MAIL_SUBJECT = "Project inquiry";
 const MAIL_BODY = "Hi Rahul,\n\n";
-const MAILTO_URL = `mailto:${EMAIL}?subject=${encodeURIComponent(MAIL_SUBJECT)}&body=${encodeURIComponent(MAIL_BODY)}`;
-const GMAIL_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(EMAIL)}&su=${encodeURIComponent(MAIL_SUBJECT)}&body=${encodeURIComponent(MAIL_BODY)}`;
-const WHATSAPP_URL = `https://wa.me/${PHONE_LINK.replace("+", "")}?text=${encodeURIComponent("Hi Rahul,")}`;
+
+const MAILTO_URL = `mailto:${EMAIL}?subject=${encodeURIComponent(
+  MAIL_SUBJECT,
+)}&body=${encodeURIComponent(MAIL_BODY)}`;
+
+const GMAIL_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+  EMAIL,
+)}&su=${encodeURIComponent(MAIL_SUBJECT)}&body=${encodeURIComponent(
+  MAIL_BODY,
+)}`;
+
+const WHATSAPP_URL = `https://wa.me/${PHONE_LINK.replace(
+  "+",
+  "",
+)}?text=${encodeURIComponent("Hi Rahul,")}`;
 
 const socials = [
   {
@@ -55,20 +65,20 @@ const TWO_PI = Math.PI * 2;
 const STAR_WHITE = "#ffffff";
 const STAR_COOL = "#a9bcff";
 
-// Fixed seed, so the stars start from the same layout on every load.
 const buildStars = (count) => {
   const random = createRandom(11);
   const bell = () => (random() + random() + random() + random() - 2) / 2;
+
   const stars = [];
 
   while (stars.length < count) {
     const clustered = stars.length % 5 !== 0;
     const x = clustered ? 74 + bell() * 70 : random() * 100;
     const y = clustered ? 48 + bell() * 80 : random() * 100;
+
     if (x < 0 || x > 100 || y < 0 || y > 100) continue;
 
     const r = 0.4 + random() * random() * 1.5;
-    // Bigger stars feel closer, so they travel a little further.
     const depth = 0.5 + r / 1.9;
 
     stars.push({
@@ -112,17 +122,23 @@ const GHOST_BUTTON =
 
 const handleCardMove = (e) => {
   const rect = e.currentTarget.getBoundingClientRect();
+
   e.currentTarget.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+
   e.currentTarget.style.setProperty("--my", `${e.clientY - rect.top}px`);
 };
 
 const handleEmailClick = (e) => {
   if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
-  // Many desktops have no mail app set up, so open the Gmail compose window directly.
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    return;
+  }
+
   e.preventDefault();
+
   const win = window.open(GMAIL_URL, "_blank");
+
   if (win) {
     win.opener = null;
   } else {
@@ -153,7 +169,7 @@ const CopyButton = ({ copied, onCopy, label }) => (
 const ContactCard = ({ icon: Icon, label, value, children }) => (
   <article
     onMouseMove={handleCardMove}
-    className="group/card relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-colors duration-300 hover:border-white/25"
+    className="group/card relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-colors duration-300 hover:border-white/25"
   >
     <div
       aria-hidden="true"
@@ -161,9 +177,9 @@ const ContactCard = ({ icon: Icon, label, value, children }) => (
       style={{ background: CARD_GLOW }}
     />
 
-    <div className="relative flex flex-col gap-4">
+    <div className="relative flex flex-col gap-5">
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-white/70">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-white/70">
           <Icon size={15} />
         </span>
 
@@ -171,6 +187,7 @@ const ContactCard = ({ icon: Icon, label, value, children }) => (
           <p className="text-[10px] uppercase tracking-[0.3em] text-white/35">
             {label}
           </p>
+
           <p className="break-all text-sm text-white md:text-base">{value}</p>
         </div>
       </div>
@@ -186,6 +203,7 @@ const StarField = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -194,21 +212,25 @@ const StarField = () => {
     let height = 0;
     let frame = 0;
     let running = false;
+
     const start = performance.now();
 
-    // Each star floats on its own slow elliptical path around its home position.
     const draw = (elapsed) => {
       const t = elapsed / 1000;
+
       ctx.clearRect(0, 0, width, height);
 
       for (const star of STARS) {
         const x = star.x * width + Math.sin(t * star.fx + star.px) * star.ax;
+
         const y = star.y * height + Math.cos(t * star.fy + star.py) * star.ay;
+
         const twinkle =
           1 - star.tw * (0.5 + 0.5 * Math.sin(t * star.ft + star.pt));
 
         ctx.globalAlpha = star.opacity * twinkle;
         ctx.fillStyle = star.cool ? STAR_COOL : STAR_WHITE;
+
         ctx.beginPath();
         ctx.arc(x, y, star.r, 0, TWO_PI);
         ctx.fill();
@@ -222,6 +244,7 @@ const StarField = () => {
 
     const play = () => {
       if (running || reduceMotion) return;
+
       running = true;
       frame = requestAnimationFrame(loop);
     };
@@ -234,22 +257,26 @@ const StarField = () => {
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
       width = rect.width;
       height = rect.height;
+
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
+
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
       draw(performance.now() - start);
     };
 
     const sizeObserver = new ResizeObserver(resize);
     sizeObserver.observe(canvas);
 
-    // Only animate while the section is on screen.
     const viewObserver = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) play();
       else pause();
     });
+
     viewObserver.observe(canvas);
 
     return () => {
@@ -283,6 +310,7 @@ const Contact = () => {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+
     if (reduceMotion) return;
 
     const ctx = gsap.context(() => {
@@ -304,31 +332,44 @@ const Contact = () => {
         .from(textRef.current, { y: 24, opacity: 0, duration: 0.7 }, "-=0.5")
         .from(
           cardsRef.current.children,
-          { y: 24, opacity: 0, stagger: 0.1, duration: 0.6 },
+          {
+            y: 24,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 0.6,
+          },
           "-=0.4",
         )
         .from(
           footerRef.current.children,
-          { y: 16, opacity: 0, stagger: 0.08, duration: 0.5 },
+          {
+            y: 16,
+            opacity: 0,
+            stagger: 0.08,
+            duration: 0.5,
+          },
           "-=0.3",
         );
-
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
-  useEffect(() => () => clearTimeout(copyTimer.current), []);
+  useEffect(() => {
+    return () => clearTimeout(copyTimer.current);
+  }, []);
 
   const handleCopy = async (text, key) => {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
       const field = document.createElement("textarea");
+
       field.value = text;
       field.setAttribute("readonly", "");
       field.style.position = "fixed";
       field.style.opacity = "0";
+
       document.body.appendChild(field);
       field.select();
       document.execCommand("copy");
@@ -336,8 +377,12 @@ const Contact = () => {
     }
 
     setCopied(key);
+
     clearTimeout(copyTimer.current);
-    copyTimer.current = setTimeout(() => setCopied(""), 1800);
+
+    copyTimer.current = setTimeout(() => {
+      setCopied("");
+    }, 1800);
   };
 
   return (
@@ -346,11 +391,13 @@ const Contact = () => {
       ref={sectionRef}
       className="relative min-h-screen w-full overflow-hidden bg-[#090807] text-white"
     >
+      {/* Background */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"
       >
         <div className="absolute right-[-10%] top-[10%] h-[560px] w-[560px] rounded-full bg-white/[0.045] blur-[130px]" />
+
         <div className="absolute bottom-[-15%] left-[-8%] h-[420px] w-[420px] rounded-full bg-[#4a64d8]/10 blur-[130px]" />
 
         <StarField />
@@ -361,13 +408,15 @@ const Contact = () => {
             alt=""
             draggable={false}
             onError={() => setImageFailed(true)}
-            className="absolute bottom-0 right-[3%] hidden h-[92%] w-auto max-w-none opacity-80 mix-blend-screen md:block"
+            className="absolute bottom-0 right-[2%] hidden h-[88%] w-auto max-w-none opacity-70 mix-blend-screen md:block"
             style={FACE_MASK}
           />
         )}
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-between px-6 py-12 md:px-12 lg:px-16">
+      {/* Main Container */}
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1600px] flex-col justify-between px-6 py-10 sm:px-8 md:px-10 lg:px-14 xl:px-16">
+        {/* Top Bar */}
         <div className="flex items-center justify-between border-b border-white/10 pb-5">
           <p className="text-[10px] uppercase tracking-[0.45em] text-white/40">
             Contact
@@ -378,34 +427,36 @@ const Contact = () => {
           </p>
         </div>
 
-        <div className="flex flex-1 flex-col justify-center py-10">
+        {/* Main Content */}
+        <div className="flex flex-1 flex-col justify-center py-14 md:py-16">
+          {/* Heading */}
           <div ref={titleRef}>
             <p className="mb-5 text-xs uppercase tracking-[0.4em] text-white/35">
               Have a project in mind?
             </p>
 
-            <LiquidText>
-              <h2 className="text-[18vw] font-semibold leading-[0.75] tracking-[-0.07em] hover:text-[#FF6B3D] md:text-[12vw]">
-                LET&apos;S
-              </h2>
+            <h2 className="text-[20vw] font-semibold leading-[0.82] tracking-[-0.07em] transition-colors duration-300 hover:text-[#FF6B3D] sm:text-[16vw] md:text-[13vw] lg:text-[11vw] xl:text-[10rem]">
+              LET&apos;S
+            </h2>
 
-              <h2 className="text-[18vw] font-semibold leading-[0.75] tracking-[-0.07em] hover:text-[#FF6B3D] md:text-[12vw]">
-                TALK<span className="text-white/25">.</span>
-              </h2>
-            </LiquidText>
+            <h2 className="text-[20vw] font-semibold leading-[0.82] tracking-[-0.07em] transition-colors duration-300 hover:text-[#FF6B3D] sm:text-[16vw] md:text-[13vw] lg:text-[11vw] xl:text-[10rem]">
+              TALK<span className="text-white/25">.</span>
+            </h2>
           </div>
 
+          {/* Description */}
           <p
             ref={textRef}
-            className="mt-10 max-w-md text-sm leading-7 text-white/45 md:text-base"
+            className="mt-10 max-w-xl text-sm leading-7 text-white/45 md:text-base"
           >
             I&apos;m always open to discussing new projects, creative ideas, or
             opportunities to be part of something interesting.
           </p>
 
+          {/* Contact Cards */}
           <div
             ref={cardsRef}
-            className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-2"
+            className="mt-8 grid w-full max-w-[760px] gap-4 sm:grid-cols-2"
           >
             <ContactCard icon={Mail} label="Email" value={EMAIL}>
               <a
@@ -416,6 +467,7 @@ const Contact = () => {
                 Send email
                 <ArrowUpRight size={13} />
               </a>
+
               <CopyButton
                 label="email address"
                 copied={copied === "email"}
@@ -428,6 +480,7 @@ const Contact = () => {
                 Call
                 <ArrowUpRight size={13} />
               </a>
+
               <CopyButton
                 label="phone number"
                 copied={copied === "phone"}
@@ -437,6 +490,7 @@ const Contact = () => {
           </div>
         </div>
 
+        {/* Footer */}
         <div
           ref={footerRef}
           className="flex flex-col gap-6 border-t border-white/10 pt-6 md:flex-row md:items-center md:justify-between"

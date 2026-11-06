@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
-import LiquidText from "./LiquidText";
+import PsychedelicText from "./PsychedelicText.jsx";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -28,9 +28,15 @@ const About = () => {
       });
 
       gsap.utils.toArray(".about-paragraph").forEach((paragraph) => {
-        const split = new SplitText(paragraph, { type: "words" });
+        const split = new SplitText(paragraph, {
+          type: "words",
+        });
 
-        gsap.set(split.words, { opacity: 0, y: 20, filter: "blur(6px)" });
+        gsap.set(split.words, {
+          opacity: 0,
+          y: 20,
+          filter: "blur(6px)",
+        });
 
         gsap.to(split.words, {
           opacity: 1,
@@ -68,37 +74,42 @@ const About = () => {
     <section
       ref={sectionRef}
       id="about"
-      className="relative w-full overflow-hidden bg-[#000] px-6 py-28 text-white md:py-36"
+      className="relative w-full overflow-hidden bg-[#000] px-5 py-28 text-white sm:px-8 md:py-36 lg:px-12"
     >
       <div className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-[#FF6B3D]/10 blur-[140px]" />
 
-      <div ref={contentRef} className="relative z-10 mx-auto w-full max-w-6xl">
+      <div
+        ref={contentRef}
+        className="relative z-10 mx-auto w-full max-w-[1500px]"
+      >
+        {/* Heading */}
         <div className="mb-16 text-center md:mb-24">
           <p className="text-[10px] uppercase tracking-[0.5em] text-white/30">
             Get to know me
           </p>
 
           <h2 className="mt-3 text-5xl font-medium tracking-tight transition-colors duration-300 hover:text-[#FF6B3D] md:text-7xl">
-            <LiquidText>About</LiquidText>
+            <PsychedelicText text="About" />
           </h2>
         </div>
 
-        <div className="grid gap-14 md:grid-cols-[0.8fr_1.2fr] md:items-start md:gap-20">
+        {/* About Content */}
+        <div className="grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-start md:gap-12 lg:gap-20 xl:gap-24">
+          {/* Left */}
           <div className="md:sticky md:top-28">
             <p className="text-[11px] uppercase tracking-[0.4em] text-white/30">
               Who am I?
             </p>
 
-            <h3 className="mt-6 text-4xl font-medium leading-[1.05] transition-colors duration-300 hover:text-[#FF6B3D] md:text-6xl">
-              <LiquidText>
-                I build complete
-                <br />
-                web products.
-              </LiquidText>
+            <h3 className="mt-6 text-4xl font-medium leading-[1.05] transition-colors duration-300 hover:text-[#FF6B3D] sm:text-5xl md:text-6xl lg:text-7xl">
+              I build complete
+              <br />
+              web products.
             </h3>
           </div>
 
-          <div className="max-w-xl">
+          {/* Right */}
+          <div className="max-w-2xl md:ml-auto">
             <p className="about-paragraph text-lg leading-relaxed text-white/60 md:text-xl">
               I'm Rahul Raikwar, a full stack developer who designs the
               interface and builds the server behind it, from the first
