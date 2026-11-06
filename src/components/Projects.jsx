@@ -25,7 +25,7 @@ const projects = [
     id: 3,
     title: "Production Hub",
     image: project3,
-    skills: "React",
+    skills: "Html, CSS, JavaScript",
     link: "https://productive-hub-nine.vercel.app/",
   },
 ];
@@ -133,11 +133,8 @@ const Projects = () => {
   };
 
   const previousProject = () => {
-    changeProject(
-      (activeRef.current - 1 + projects.length) % projects.length
-    );
+    changeProject((activeRef.current - 1 + projects.length) % projects.length);
   };
-
 
   useEffect(() => {
     const handleKey = (event) => {
@@ -149,7 +146,6 @@ const Projects = () => {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
- 
   const handleTouchStart = (event) => {
     touchStartX.current = event.touches[0].clientX;
   };
@@ -172,7 +168,6 @@ const Projects = () => {
       className="relative min-h-screen w-full overflow-hidden bg-[#090807] text-white"
       id="projects"
     >
-   
       <div className="absolute inset-0">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-25 blur-sm transition-all duration-700"
@@ -182,7 +177,6 @@ const Projects = () => {
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col items-center">
-   
         <div className="absolute top-[9%] z-30 text-center">
           <p className="mb-2 text-[11px] uppercase tracking-[0.45em] text-white/50">
             Projects
@@ -198,7 +192,6 @@ const Projects = () => {
           </LiquidText>
         </div>
 
-   
         <div
           className="absolute left-1/2 top-[50%] h-[400px] w-full -translate-x-1/2 -translate-y-1/2 overflow-visible"
           onTouchStart={handleTouchStart}
@@ -216,7 +209,6 @@ const Projects = () => {
                 onClick={() => changeProject(index)}
                 className="absolute left-1/2 top-1/2 w-[280px] -translate-x-1/2 -translate-y-1/2 cursor-pointer sm:w-[380px] md:w-[540px]"
               >
-             
                 <div
                   className={`overflow-hidden rounded-xl border bg-[#14110f] shadow-2xl shadow-black/60 transition-colors duration-500 ${
                     isActive ? "border-white/25" : "border-white/10"
@@ -263,7 +255,6 @@ const Projects = () => {
             ›
           </button>
         </div>
-
 
         <div
           ref={infoRef}
