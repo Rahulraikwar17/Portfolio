@@ -61,7 +61,7 @@ const useIsDesktop = () => {
   return isDesktop;
 };
 
-const HeroSection = () => {
+const HeroSection = ({ ready = true }) => {
   const containerRef = useRef(null);
   const photoShiftRef = useRef(null);
   const lettersRef = useRef([]);
@@ -71,6 +71,7 @@ const HeroSection = () => {
   const ctaRef = useRef(null);
   const linksRef = useRef([]);
   const scrollRef = useRef(null);
+  const timelineRef = useRef(null);
 
   const isDesktop = useIsDesktop();
 
@@ -85,6 +86,7 @@ const HeroSection = () => {
     : "linear-gradient(to bottom, transparent 0%, #000 10%, #000 60%, transparent 100%)";
 
   useEffect(() => {
+    if (!ready) return;
     let i = 0;
     const id = setInterval(() => {
       if (!roleRef.current) return;
@@ -107,7 +109,7 @@ const HeroSection = () => {
         );
     }, 2600);
     return () => clearInterval(id);
-  }, []);
+  }, [ready]);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -125,7 +127,8 @@ const HeroSection = () => {
       gsap.set(scrollRef.current, { opacity: 0 });
 
       const tl = gsap.timeline({
-        delay: 0.3,
+        paused: true,
+        delay: 0.15,
         defaults: { ease: "power3.out" },
       });
       tl.to(photoShiftRef.current, {
@@ -154,9 +157,19 @@ const HeroSection = () => {
           "-=0.6",
         )
         .to(scrollRef.current, { opacity: 1, duration: 0.8 }, "-=0.4");
+
+      timelineRef.current = tl;
     }, containerRef);
-    return () => ctx.revert();
+
+    return () => {
+      timelineRef.current = null;
+      ctx.revert();
+    };
   }, []);
+
+  useEffect(() => {
+    if (ready) timelineRef.current?.play();
+  }, [ready]);
 
   const renderWord = (word, offset, outline) => (
     <span className="block overflow-hidden pb-[0.08em]">
@@ -330,7 +343,6 @@ const HeroSection = () => {
           />
         </svg>
       </a>
-
     </div>
   );
 };

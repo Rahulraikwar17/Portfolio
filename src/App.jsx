@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import gsap from "gsap";
 import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -17,12 +17,17 @@ import Loader from "./components/Loader.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const HERO_IMAGE = "/me2.png";
+
 const App = () => {
+  const [ready, setReady] = useState(false);
+
   useLayoutEffect(() => {
     const lenis = new Lenis({
       duration: 1.5,
       smoothWheel: true,
     });
+    lenis.stop();
     window.lenis = lenis;
 
     lenis.on("scroll", ScrollTrigger.update);
@@ -41,15 +46,21 @@ const App = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!ready) return;
+    window.lenis?.start();
+    ScrollTrigger.refresh();
+  }, [ready]);
+
   return (
     <div className="w-full min-h-screen bg-black">
-      <Loader />
+      <Loader images={[HERO_IMAGE]} onDone={() => setReady(true)} />
       <CustomCursor />
 
       <Navbar />
 
       <main>
-        <HeroSection />
+        <HeroSection ready={ready} />
         <About />
         <Marquee />
 

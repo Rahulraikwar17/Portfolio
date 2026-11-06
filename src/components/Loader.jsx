@@ -3,8 +3,27 @@ import { createPortal } from "react-dom";
 import gsap from "gsap";
 
 const BG = "#0a0a0a";
+const IMAGE_TIMEOUT = 8000;
 
-export default function Loader() {
+function preload(src) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, IMAGE_TIMEOUT);
+    const done = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    const img = new Image();
+    img.src = src;
+    if (typeof img.decode === "function") {
+      img.decode().then(done, done);
+    } else {
+      img.onload = done;
+      img.onerror = done;
+    }
+  });
+}
+
+export default function Loader({ images = [], onDone }) {
   const [visible, setVisible] = useState(true);
   const [grid, setGrid] = useState({ cols: 0, rows: 0 });
 
@@ -13,6 +32,9 @@ export default function Loader() {
   const barRef = useRef(null);
   const countRef = useRef(null);
   const gridRef = useRef({ cols: 0, rows: 0 });
+  const imagesRef = useRef(images);
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
 
   useEffect(() => {
     if (!visible) return;
@@ -32,6 +54,7 @@ export default function Loader() {
   useEffect(() => {
     if (!visible) return;
     let removeLoadListener = () => {};
+    let cancelled = false;
 
     const ctx = gsap.context(() => {
       const counter = { v: 0 };
@@ -58,6 +81,7 @@ export default function Loader() {
           .timeline({ onComplete: () => setVisible(false) })
           .to(contentRef.current, { autoAlpha: 0, duration: 0.35, ease: "power2.in" })
           .set(rootRef.current, { backgroundColor: "transparent" })
+          .add(() => onDoneRef.current?.())
           .to(".ld-px", {
             x: (i) => direction(i).x * gsap.utils.random(80, 320),
             y: (i) => direction(i).y * gsap.utils.random(80, 320),
@@ -79,6 +103,33 @@ export default function Loader() {
           onComplete: () => gsap.delayedCall(0.25, exit),
         });
 
+      let reachedMark = false;
+      let pageLoaded = document.readyState === "complete";
+      let assetsLoaded = false;
+      let finished = false;
+
+      const check = () => {
+        if (finished || cancelled) return;
+        if (reachedMark && pageLoaded && assetsLoaded) {
+          finished = true;
+          finish();
+        }
+      };
+
+      const onPageLoad = () => {
+        pageLoaded = true;
+        check();
+      };
+      if (!pageLoaded) {
+        window.addEventListener("load", onPageLoad, { once: true });
+        removeLoadListener = () => window.removeEventListener("load", onPageLoad);
+      }
+
+      Promise.all(imagesRef.current.map(preload)).then(() => {
+        assetsLoaded = true;
+        check();
+      });
+
       gsap.from(contentRef.current, { autoAlpha: 0, y: 10, duration: 0.6, ease: "power2.out" });
 
       gsap.to(counter, {
@@ -87,17 +138,14 @@ export default function Loader() {
         ease: "power1.out",
         onUpdate: update,
         onComplete: () => {
-          if (document.readyState === "complete") {
-            finish();
-          } else {
-            window.addEventListener("load", finish, { once: true });
-            removeLoadListener = () => window.removeEventListener("load", finish);
-          }
+          reachedMark = true;
+          check();
         },
       });
     }, rootRef);
 
     return () => {
+      cancelled = true;
       removeLoadListener();
       ctx.revert();
     };
