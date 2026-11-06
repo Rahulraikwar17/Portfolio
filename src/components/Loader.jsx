@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 
-const BG = "#0a0a0a";
+const WORDS = ["Design", "Develop", "Deliver", "Welcome"];
 const IMAGE_TIMEOUT = 8000;
+const CURVE_START = "M0 0 L100 0 Q50 24 0 0 Z";
+const CURVE_END = "M0 0 L100 0 Q50 0 0 0 Z";
 
 function preload(src) {
   return new Promise((resolve) => {
@@ -25,13 +27,10 @@ function preload(src) {
 
 export default function Loader({ images = [], onDone }) {
   const [visible, setVisible] = useState(true);
-  const [grid, setGrid] = useState({ cols: 0, rows: 0 });
 
   const rootRef = useRef(null);
   const contentRef = useRef(null);
-  const barRef = useRef(null);
-  const countRef = useRef(null);
-  const gridRef = useRef({ cols: 0, rows: 0 });
+  const curveRef = useRef(null);
   const imagesRef = useRef(images);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
@@ -39,13 +38,6 @@ export default function Loader({ images = [], onDone }) {
   useEffect(() => {
     if (!visible) return;
     document.body.style.overflow = "hidden";
-    const size = window.innerWidth < 640 ? 24 : 28;
-    const next = {
-      cols: Math.ceil(window.innerWidth / size),
-      rows: Math.ceil(window.innerHeight / size),
-    };
-    gridRef.current = next;
-    setGrid(next);
     return () => {
       document.body.style.overflow = "";
     };
@@ -57,62 +49,39 @@ export default function Loader({ images = [], onDone }) {
     let cancelled = false;
 
     const ctx = gsap.context(() => {
-      const counter = { v: 0 };
-
-      const update = () => {
-        if (!barRef.current || !countRef.current) return;
-        barRef.current.style.transform = `scaleX(${counter.v / 100})`;
-        countRef.current.textContent = Math.round(counter.v);
-      };
-
-      const exit = () => {
-        const { cols, rows } = gridRef.current;
-        const cx = (cols - 1) / 2;
-        const cy = (rows - 1) / 2;
-        const direction = (i) => {
-          const dx = (i % cols) - cx;
-          const dy = Math.floor(i / cols) - cy;
-          const len = Math.hypot(dx, dy) || 1;
-          return { x: dx / len, y: dy / len };
-        };
-        const stagger = { amount: 0.9, from: "center", grid: [rows, cols] };
-
-        gsap
-          .timeline({ onComplete: () => setVisible(false) })
-          .to(contentRef.current, { autoAlpha: 0, duration: 0.35, ease: "power2.in" })
-          .set(rootRef.current, { backgroundColor: "transparent" })
-          .add(() => onDoneRef.current?.())
-          .to(".ld-px", {
-            x: (i) => direction(i).x * gsap.utils.random(80, 320),
-            y: (i) => direction(i).y * gsap.utils.random(80, 320),
-            rotation: () => gsap.utils.random(-270, 270),
-            scale: 0.2,
-            duration: 1,
-            ease: "power2.out",
-            stagger,
-          })
-          .to(".ld-px", { autoAlpha: 0, duration: 1, ease: "power3.in", stagger }, "<");
-      };
-
-      const finish = () =>
-        gsap.to(counter, {
-          v: 100,
-          duration: 0.5,
-          ease: "power2.out",
-          onUpdate: update,
-          onComplete: () => gsap.delayedCall(0.25, exit),
-        });
-
-      let reachedMark = false;
+      let introDone = false;
       let pageLoaded = document.readyState === "complete";
       let assetsLoaded = false;
-      let finished = false;
+      let started = false;
+
+      const exit = () => {
+        gsap
+          .timeline({ onComplete: () => setVisible(false) })
+          .to(contentRef.current, {
+            y: -90,
+            autoAlpha: 0,
+            duration: 0.8,
+            ease: "power3.in",
+          })
+          .to(
+            rootRef.current,
+            { yPercent: -100, duration: 1.3, ease: "power4.inOut" },
+            0.25
+          )
+          .fromTo(
+            curveRef.current,
+            { attr: { d: CURVE_START } },
+            { attr: { d: CURVE_END }, duration: 1.3, ease: "power2.out" },
+            0.25
+          )
+          .add(() => onDoneRef.current?.(), 0.85);
+      };
 
       const check = () => {
-        if (finished || cancelled) return;
-        if (reachedMark && pageLoaded && assetsLoaded) {
-          finished = true;
-          finish();
+        if (started || cancelled) return;
+        if (introDone && pageLoaded && assetsLoaded) {
+          started = true;
+          gsap.delayedCall(0.25, exit);
         }
       };
 
@@ -125,22 +94,45 @@ export default function Loader({ images = [], onDone }) {
         removeLoadListener = () => window.removeEventListener("load", onPageLoad);
       }
 
-      Promise.all(imagesRef.current.map(preload)).then(() => {
+      Promise.all([
+        ...imagesRef.current.map(preload),
+        document.fonts ? document.fonts.ready : null,
+      ]).then(() => {
         assetsLoaded = true;
         check();
       });
 
-      gsap.from(contentRef.current, { autoAlpha: 0, y: 10, duration: 0.6, ease: "power2.out" });
+      const words = gsap.utils.toArray(".ld-word");
+      gsap.set(words, { yPercent: 115 });
 
-      gsap.to(counter, {
-        v: 85,
-        duration: 1.8,
-        ease: "power1.out",
-        onUpdate: update,
+      const intro = gsap.timeline({
+        delay: 0.2,
         onComplete: () => {
-          reachedMark = true;
+          introDone = true;
           check();
         },
+      });
+
+      intro.from(
+        ".ld-corner",
+        { autoAlpha: 0, y: 10, duration: 0.7, stagger: 0.1, ease: "power2.out" },
+        0
+      );
+
+      words.forEach((word, i) => {
+        const last = i === words.length - 1;
+        intro.to(
+          word,
+          { yPercent: 0, duration: 0.45, ease: "power4.out" },
+          i === 0 ? 0.15 : "<+=0.1"
+        );
+        if (!last) {
+          intro.to(
+            word,
+            { yPercent: -115, duration: 0.28, ease: "power3.in" },
+            "+=0.08"
+          );
+        }
       });
     }, rootRef);
 
@@ -156,36 +148,52 @@ export default function Loader({ images = [], onDone }) {
   return createPortal(
     <div
       ref={rootRef}
-      className="fixed inset-0 z-[99999] overflow-hidden bg-neutral-950 text-white"
+      className="fixed inset-0 z-[99999] bg-[#050505] text-white"
     >
-      <div
-        className="pointer-events-none absolute inset-0 grid"
-        style={{
-          gridTemplateColumns: `repeat(${grid.cols}, 1fr)`,
-          gridTemplateRows: `repeat(${grid.rows}, 1fr)`,
-        }}
-      >
-        {Array.from({ length: grid.cols * grid.rows }).map((_, i) => (
-          <div
-            key={i}
-            className="ld-px bg-neutral-950 will-change-transform"
-            style={{ boxShadow: `0 0 0 0.6px ${BG}` }}
-          />
-        ))}
-      </div>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,107,61,0.14),transparent_55%)]" />
 
-      <div
-        ref={contentRef}
-        className="absolute inset-0 flex flex-col items-center justify-center gap-6"
-      >
-        <p className="text-6xl font-light tabular-nums tracking-widest">
-          <span ref={countRef}>0</span>
-          <span className="ml-1 text-2xl text-white/50">%</span>
+      <div ref={contentRef} className="absolute inset-0">
+        <p className="ld-corner absolute left-5 top-5 text-[10px] uppercase tracking-[0.3em] text-white/50 md:left-10 md:top-8 md:text-xs">
+          Rahul Raikwar
         </p>
-        <div className="h-px w-64 max-w-[70vw] overflow-hidden bg-white/15">
-          <div ref={barRef} className="h-full origin-left scale-x-0 bg-white" />
+        <p className="ld-corner absolute right-5 top-5 text-[10px] uppercase tracking-[0.3em] text-white/50 md:right-10 md:top-8 md:text-xs">
+          Portfolio 2026
+        </p>
+        <p className="ld-corner absolute bottom-5 left-5 text-[10px] uppercase tracking-[0.3em] text-white/50 md:bottom-8 md:left-10 md:text-xs">
+          Full Stack Developer
+        </p>
+        <p className="ld-corner absolute bottom-5 right-5 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/50 md:bottom-8 md:right-10 md:text-xs">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ff6b3d] opacity-80" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#ff6b3d]" />
+          </span>
+          Available for work
+        </p>
+
+        <div className="absolute inset-0 flex items-center justify-center px-4">
+          <h1 className="lemonmilk-font grid overflow-hidden px-2 text-[clamp(2.75rem,13vw,10rem)] font-medium uppercase leading-[1.05] tracking-tighter">
+            {WORDS.map((word, i) => (
+              <span
+                key={word}
+                className={`ld-word col-start-1 row-start-1 text-center ${
+                  i === WORDS.length - 1 ? "text-[#ff6b3d]" : "text-white"
+                }`}
+              >
+                {word}
+              </span>
+            ))}
+          </h1>
         </div>
       </div>
+
+      <svg
+        className="pointer-events-none absolute left-0 top-full -mt-px h-[12vh] w-full"
+        viewBox="0 0 100 12"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path ref={curveRef} d={CURVE_START} fill="#050505" />
+      </svg>
     </div>,
     document.body
   );
