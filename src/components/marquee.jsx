@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Atom,
-  Smartphone,
   Triangle,
   FileCode,
   Braces,
@@ -14,17 +13,14 @@ import {
   Layers,
   Hexagon,
   Server,
-  Database,
   Leaf,
   Network,
-  Workflow,
-  Flame,
   KeyRound,
-  Container,
   GitBranch,
   HardDrive,
   Send,
 } from "lucide-react";
+import StarField from "./StarField";
 
 const FRONTEND = [
   { name: "React", icon: Atom },
@@ -50,12 +46,17 @@ const BACKEND = [
   { name: "Postman", icon: Send },
 ];
 
+const FADE_MASK =
+  "linear-gradient(to right, transparent, #000 10%, #000 90%, transparent)";
+
 const Row = ({ items, direction, duration }) => {
   const group = [...items, ...items];
   return (
     <div className="overflow-hidden">
       <div
-        className={`skills-track flex w-max hover:[animation-play-state:paused] ${direction === "right" ? "to-right" : "to-left"}`}
+        className={`skills-track flex w-max hover:[animation-play-state:paused] ${
+          direction === "right" ? "to-right" : "to-left"
+        }`}
         style={{ animationDuration: `${duration}s` }}
       >
         {[0, 1].map((g) => (
@@ -81,13 +82,7 @@ const Row = ({ items, direction, duration }) => {
 const Marquee = () => (
   <section
     id="skills"
-    className="flex flex-col gap-10 bg-[#050505] py-16 font-['Space_Grotesk',sans-serif]"
-    style={{
-      maskImage:
-        "linear-gradient(to right, transparent, #000 10%, #000 90%, transparent)",
-      WebkitMaskImage:
-        "linear-gradient(to right, transparent, #000 10%, #000 90%, transparent)",
-    }}
+    className="relative overflow-hidden bg-transparent py-16 font-['Space_Grotesk',sans-serif]"
   >
     <style>{`
       @keyframes skills-left  { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
@@ -98,8 +93,16 @@ const Marquee = () => (
       @media (prefers-reduced-motion: reduce) { .skills-track { animation: none; } }
     `}</style>
 
-    <Row items={FRONTEND} direction="right" duration={60} />
-    <Row items={BACKEND} direction="left" duration={60} />
+    <StarField seed={33} count={160} />
+
+ 
+    <div
+      className="relative z-10 flex flex-col gap-10"
+      style={{ maskImage: FADE_MASK, WebkitMaskImage: FADE_MASK }}
+    >
+      <Row items={FRONTEND} direction="right" duration={60} />
+      <Row items={BACKEND} direction="left" duration={60} />
+    </div>
   </section>
 );
 

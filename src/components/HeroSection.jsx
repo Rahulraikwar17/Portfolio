@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import PsychedelicText from "./PsychedelicText";
+import StarField from "./StarField.jsx";
 
 const IMAGE_SRC = "/me2.png";
 const NAME = "Rahul";
@@ -268,6 +269,7 @@ const HeroSection = ({ ready = true }) => {
       id="home"
       className="relative h-[100svh] min-h-[700px] w-full overflow-hidden bg-[#050505] text-white md:min-h-[620px]"
     >
+      <StarField seed={33} count={260} />
       {/* Background grid */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.08]"

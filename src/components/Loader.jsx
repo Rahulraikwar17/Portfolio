@@ -51,14 +51,15 @@ function preload(src) {
 function waitForFonts() {
   if (!document.fonts) return Promise.resolve();
 
-  // Load the exact font used by the hero heading so it does not swap after the reveal.
   const heading = document.querySelector("h1");
   const loads = [];
   if (heading) {
     const cs = getComputedStyle(heading);
     loads.push(
       document.fonts
-        .load(`${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`)
+        .load(
+          `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`,
+        )
         .catch(() => null),
     );
   }
@@ -97,7 +98,6 @@ export default function Loader({ images = [], onReveal, onComplete }) {
     const prevHtmlOverflow = html.style.overflow;
     const prevBodyOverflow = body.style.overflow;
 
-    // Lock both elements because an overflow rule on <html> makes the body lock useless.
     html.style.overflow = "hidden";
     body.style.overflow = "hidden";
 
@@ -217,7 +217,7 @@ export default function Loader({ images = [], onReveal, onComplete }) {
 
     render();
 
-    // The counter moves on its own up to 88%, then jumps to 100% once everything is loaded.
+  
     crawl = gsap.to(progress, {
       value: 88,
       duration: 3,
