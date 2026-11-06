@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import gsap from "gsap";
 import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -19,6 +19,11 @@ gsap.registerPlugin(ScrollTrigger);
 
 const HERO_IMAGE = "/me2.png";
 
+const scrollToTop = () => {
+  window.scrollTo(0, 0);
+  window.lenis?.scrollTo(0, { immediate: true, force: true });
+};
+
 const App = () => {
   const [ready, setReady] = useState(false);
 
@@ -27,6 +32,8 @@ const App = () => {
       duration: 1.5,
       smoothWheel: true,
     });
+
+    // Scrolling stays locked until the loader has fully left the screen.
     lenis.stop();
     window.lenis = lenis;
 
@@ -46,15 +53,24 @@ const App = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!ready) return;
+  const handleReveal = () => {
+    scrollToTop();
+    setReady(true);
+  };
+
+  const handleLoaderComplete = () => {
+    scrollToTop();
     window.lenis?.start();
     ScrollTrigger.refresh();
-  }, [ready]);
+  };
 
   return (
     <div className="w-full min-h-screen bg-black">
-      <Loader images={[HERO_IMAGE]} onDone={() => setReady(true)} />
+      <Loader
+        images={[HERO_IMAGE]}
+        onReveal={handleReveal}
+        onComplete={handleLoaderComplete}
+      />
       <CustomCursor />
 
       <Navbar />

@@ -2,10 +2,33 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 
-const WORDS = ["Design", "Develop", "Deliver", "Welcome"];
 const IMAGE_TIMEOUT = 8000;
-const CURVE_START = "M0 0 L100 0 Q50 24 0 0 Z";
-const CURVE_END = "M0 0 L100 0 Q50 0 0 0 Z";
+const FONT_TIMEOUT = 2500;
+const MIN_DURATION = 1800;
+const RING_RADIUS = 54;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
+
+const SCROLL_KEYS = [
+  " ",
+  "PageUp",
+  "PageDown",
+  "Home",
+  "End",
+  "ArrowUp",
+  "ArrowDown",
+];
+
+const GRID_STYLE = {
+  backgroundImage:
+    "linear-gradient(#ff6b3d 1px, transparent 1px), linear-gradient(90deg, #ff6b3d 1px, transparent 1px)",
+  backgroundSize: "64px 64px",
+  maskImage: "radial-gradient(circle at center, black, transparent 65%)",
+  WebkitMaskImage: "radial-gradient(circle at center, black, transparent 65%)",
+};
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function preload(src) {
   return new Promise((resolve) => {
@@ -25,120 +48,208 @@ function preload(src) {
   });
 }
 
-export default function Loader({ images = [], onDone }) {
+function waitForFonts() {
+  if (!document.fonts) return Promise.resolve();
+
+  // Load the exact font used by the hero heading so it does not swap after the reveal.
+  const heading = document.querySelector("h1");
+  const loads = [];
+  if (heading) {
+    const cs = getComputedStyle(heading);
+    loads.push(
+      document.fonts
+        .load(`${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`)
+        .catch(() => null),
+    );
+  }
+
+  const ready = Promise.all(loads).then(() => document.fonts.ready);
+  return Promise.race([ready, wait(FONT_TIMEOUT)]);
+}
+
+function waitForPageLoad() {
+  if (document.readyState === "complete") return Promise.resolve();
+  return new Promise((resolve) =>
+    window.addEventListener("load", resolve, { once: true }),
+  );
+}
+
+export default function Loader({ images = [], onReveal, onComplete }) {
   const [visible, setVisible] = useState(true);
 
   const rootRef = useRef(null);
   const contentRef = useRef(null);
-  const curveRef = useRef(null);
+  const glowRef = useRef(null);
+  const orbitRef = useRef(null);
+  const ringRef = useRef(null);
+  const counterRef = useRef(null);
   const imagesRef = useRef(images);
-  const onDoneRef = useRef(onDone);
-  onDoneRef.current = onDone;
+  const onRevealRef = useRef(onReveal);
+  const onCompleteRef = useRef(onComplete);
+  onRevealRef.current = onReveal;
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     if (!visible) return;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
+
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+
+    // Lock both elements because an overflow rule on <html> makes the body lock useless.
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+
+    const blockScroll = (e) => {
+      if (e.ctrlKey) return;
+      if (e.cancelable) e.preventDefault();
     };
+    const blockKeys = (e) => {
+      if (SCROLL_KEYS.includes(e.key) && e.cancelable) e.preventDefault();
+    };
+    // Safety net: if anything still moves the page, put it back at the top.
+    const keepTop = () => {
+      if (window.scrollY !== 0) window.scrollTo(0, 0);
+    };
+
+    window.addEventListener("wheel", blockScroll, { passive: false });
+    window.addEventListener("touchmove", blockScroll, { passive: false });
+    window.addEventListener("keydown", blockKeys);
+    window.addEventListener("scroll", keepTop);
+
+    return () => {
+      window.removeEventListener("wheel", blockScroll);
+      window.removeEventListener("touchmove", blockScroll);
+      window.removeEventListener("keydown", blockKeys);
+      window.removeEventListener("scroll", keepTop);
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, [visible]);
+
+  // Runs after the lock above has been released and the loader has unmounted.
+  useEffect(() => {
+    if (!visible) onCompleteRef.current?.();
   }, [visible]);
 
   useEffect(() => {
     if (!visible) return;
-    let removeLoadListener = () => {};
+
     let cancelled = false;
+    let crawl;
+    let finish;
+    let pause;
+    let exitTimeline;
+    const progress = { value: 0 };
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const render = () => {
+      const value = progress.value;
+      if (ringRef.current) {
+        ringRef.current.style.strokeDashoffset = String(
+          RING_LENGTH * (1 - value / 100),
+        );
+      }
+      if (counterRef.current) {
+        counterRef.current.textContent = String(Math.round(value)).padStart(
+          2,
+          "0",
+        );
+      }
+    };
+
+    const exit = () => {
+      if (cancelled || !rootRef.current) return;
+      rootRef.current.style.pointerEvents = "none";
+
+      // The content fades out first, then the whole screen lifts like a curtain.
+      exitTimeline = gsap
+        .timeline({ onComplete: () => setVisible(false) })
+        .to(
+          contentRef.current,
+          { opacity: 0, scale: 0.9, duration: 0.45, ease: "power2.in" },
+          0.1,
+        )
+        .to(
+          rootRef.current,
+          { yPercent: -100, duration: 1, ease: "power4.inOut" },
+          0.45,
+        )
+        .add(() => onRevealRef.current?.(), 0.75);
+    };
 
     const ctx = gsap.context(() => {
-      let introDone = false;
-      let pageLoaded = document.readyState === "complete";
-      let assetsLoaded = false;
-      let started = false;
+      if (reduceMotion) return;
 
-      const exit = () => {
-        gsap
-          .timeline({ onComplete: () => setVisible(false) })
-          .to(contentRef.current, {
-            y: -90,
-            autoAlpha: 0,
-            duration: 0.8,
-            ease: "power3.in",
-          })
-          .to(
-            rootRef.current,
-            { yPercent: -100, duration: 1.3, ease: "power4.inOut" },
-            0.25
-          )
-          .fromTo(
-            curveRef.current,
-            { attr: { d: CURVE_START } },
-            { attr: { d: CURVE_END }, duration: 1.3, ease: "power2.out" },
-            0.25
-          )
-          .add(() => onDoneRef.current?.(), 0.85);
-      };
-
-      const check = () => {
-        if (started || cancelled) return;
-        if (introDone && pageLoaded && assetsLoaded) {
-          started = true;
-          gsap.delayedCall(0.25, exit);
-        }
-      };
-
-      const onPageLoad = () => {
-        pageLoaded = true;
-        check();
-      };
-      if (!pageLoaded) {
-        window.addEventListener("load", onPageLoad, { once: true });
-        removeLoadListener = () => window.removeEventListener("load", onPageLoad);
-      }
-
-      Promise.all([
-        ...imagesRef.current.map(preload),
-        document.fonts ? document.fonts.ready : null,
-      ]).then(() => {
-        assetsLoaded = true;
-        check();
+      gsap.from(contentRef.current, {
+        opacity: 0,
+        y: 16,
+        duration: 0.8,
+        ease: "power3.out",
       });
+      gsap.to(orbitRef.current, {
+        rotation: 360,
+        duration: 9,
+        ease: "none",
+        repeat: -1,
+      });
+      gsap.fromTo(
+        glowRef.current,
+        { scale: 0.9, opacity: 0.2 },
+        {
+          scale: 1.2,
+          opacity: 0.45,
+          duration: 1.6,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+        },
+      );
+    }, rootRef);
 
-      const words = gsap.utils.toArray(".ld-word");
-      gsap.set(words, { yPercent: 115 });
+    render();
 
-      const intro = gsap.timeline({
-        delay: 0.2,
+    // The counter moves on its own up to 88%, then jumps to 100% once everything is loaded.
+    crawl = gsap.to(progress, {
+      value: 88,
+      duration: 3,
+      ease: "power2.out",
+      onUpdate: render,
+    });
+
+    Promise.all([
+      Promise.all(imagesRef.current.map(preload)),
+      waitForFonts(),
+      waitForPageLoad(),
+      wait(MIN_DURATION),
+    ]).then(() => {
+      if (cancelled) return;
+      crawl.kill();
+      finish = gsap.to(progress, {
+        value: 100,
+        duration: 0.6,
+        ease: "power2.out",
+        onUpdate: render,
         onComplete: () => {
-          introDone = true;
-          check();
+          pause = gsap.delayedCall(0.2, exit);
         },
       });
-
-      intro.from(
-        ".ld-corner",
-        { autoAlpha: 0, y: 10, duration: 0.7, stagger: 0.1, ease: "power2.out" },
-        0
-      );
-
-      words.forEach((word, i) => {
-        const last = i === words.length - 1;
-        intro.to(
-          word,
-          { yPercent: 0, duration: 0.45, ease: "power4.out" },
-          i === 0 ? 0.15 : "<+=0.1"
-        );
-        if (!last) {
-          intro.to(
-            word,
-            { yPercent: -115, duration: 0.28, ease: "power3.in" },
-            "+=0.08"
-          );
-        }
-      });
-    }, rootRef);
+    });
 
     return () => {
       cancelled = true;
-      removeLoadListener();
+      crawl?.kill();
+      finish?.kill();
+      pause?.kill();
+      exitTimeline?.kill();
       ctx.revert();
     };
   }, [visible]);
@@ -148,53 +259,67 @@ export default function Loader({ images = [], onDone }) {
   return createPortal(
     <div
       ref={rootRef}
-      className="fixed inset-0 z-[99999] bg-[#050505] text-white"
+      role="status"
+      aria-label="Loading"
+      className="fixed inset-0 z-[99999] flex items-center justify-center overflow-hidden bg-[#050505] font-['Space_Grotesk',sans-serif] text-white will-change-transform"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,107,61,0.14),transparent_55%)]" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.08]"
+        style={GRID_STYLE}
+      />
 
-      <div ref={contentRef} className="absolute inset-0">
-        <p className="ld-corner absolute left-5 top-5 text-[10px] uppercase tracking-[0.3em] text-white/50 md:left-10 md:top-8 md:text-xs">
-          Rahul Raikwar
-        </p>
-        <p className="ld-corner absolute right-5 top-5 text-[10px] uppercase tracking-[0.3em] text-white/50 md:right-10 md:top-8 md:text-xs">
-          Portfolio 2026
-        </p>
-        <p className="ld-corner absolute bottom-5 left-5 text-[10px] uppercase tracking-[0.3em] text-white/50 md:bottom-8 md:left-10 md:text-xs">
-          Full Stack Developer
-        </p>
-        <p className="ld-corner absolute bottom-5 right-5 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/50 md:bottom-8 md:right-10 md:text-xs">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ff6b3d] opacity-80" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#ff6b3d]" />
-          </span>
-          Available for work
-        </p>
+      <div ref={contentRef} className="relative h-40 w-40">
+        <div
+          ref={glowRef}
+          className="absolute inset-4 rounded-full bg-[#ff6b3d] blur-[50px]"
+          style={{ opacity: 0.2 }}
+        />
 
-        <div className="absolute inset-0 flex items-center justify-center px-4">
-          <h1 className="lemonmilk-font grid overflow-hidden px-2 text-[clamp(2.75rem,13vw,10rem)] font-medium uppercase leading-[1.05] tracking-tighter">
-            {WORDS.map((word, i) => (
-              <span
-                key={word}
-                className={`ld-word col-start-1 row-start-1 text-center ${
-                  i === WORDS.length - 1 ? "text-[#ff6b3d]" : "text-white"
-                }`}
-              >
-                {word}
-              </span>
-            ))}
-          </h1>
+        <div
+          ref={orbitRef}
+          className="absolute -inset-5 rounded-full border border-dashed border-white/15"
+        />
+
+        <svg
+          viewBox="0 0 120 120"
+          className="absolute inset-0 h-full w-full -rotate-90"
+          aria-hidden="true"
+        >
+          <circle
+            cx="60"
+            cy="60"
+            r={RING_RADIUS}
+            fill="none"
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth="2"
+          />
+          <circle
+            ref={ringRef}
+            cx="60"
+            cy="60"
+            r={RING_RADIUS}
+            fill="none"
+            stroke="#ff6b3d"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray={RING_LENGTH}
+            strokeDashoffset={RING_LENGTH}
+          />
+        </svg>
+
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex items-baseline">
+            <span
+              ref={counterRef}
+              className="text-4xl font-medium tabular-nums leading-none"
+            >
+              00
+            </span>
+            <span className="ml-1 text-sm leading-none text-white/50">%</span>
+          </div>
         </div>
       </div>
-
-      <svg
-        className="pointer-events-none absolute left-0 top-full -mt-px h-[12vh] w-full"
-        viewBox="0 0 100 12"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path ref={curveRef} d={CURVE_START} fill="#050505" />
-      </svg>
     </div>,
-    document.body
+    document.body,
   );
 }

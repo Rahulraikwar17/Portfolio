@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 const IMAGE_SRC = "/me2.png";
@@ -64,7 +64,8 @@ const useIsDesktop = () => {
 const HeroSection = ({ ready = true }) => {
   const containerRef = useRef(null);
   const photoShiftRef = useRef(null);
-  const lettersRef = useRef([]);
+  const nameRef = useRef([]);
+  const surnameRef = useRef([]);
   const roleRef = useRef(null);
   const badgeRef = useRef(null);
   const copyRef = useRef(null);
@@ -87,11 +88,13 @@ const HeroSection = ({ ready = true }) => {
 
   useEffect(() => {
     if (!ready) return;
+
     let i = 0;
+    let swap;
     const id = setInterval(() => {
       if (!roleRef.current) return;
       i = (i + 1) % ROLES.length;
-      gsap
+      swap = gsap
         .timeline()
         .to(roleRef.current, {
           yPercent: -110,
@@ -108,12 +111,15 @@ const HeroSection = ({ ready = true }) => {
           { yPercent: 0, opacity: 1, duration: 0.5, ease: "power3.out" },
         );
     }, 2600);
-    return () => clearInterval(id);
+
+    return () => {
+      clearInterval(id);
+      swap?.kill();
+    };
   }, [ready]);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.set(lettersRef.current, { yPercent: 115, rotate: 5 });
       gsap.set(
         [
           badgeRef.current,
@@ -123,40 +129,40 @@ const HeroSection = ({ ready = true }) => {
         ],
         { y: 20, opacity: 0 },
       );
+      gsap.set([...nameRef.current, ...surnameRef.current], { yPercent: 115 });
       gsap.set(photoShiftRef.current, { scale: 1.08, opacity: 0 });
       gsap.set(scrollRef.current, { opacity: 0 });
 
+      // Everything stays hidden and paused until the loader tells us to start.
       const tl = gsap.timeline({
         paused: true,
-        delay: 0.15,
         defaults: { ease: "power3.out" },
       });
       tl.to(photoShiftRef.current, {
         scale: 1.02,
         opacity: 1,
-        duration: 1.8,
+        duration: 1.6,
         ease: "power2.out",
       })
-        .to(badgeRef.current, { y: 0, opacity: 1, duration: 0.7 }, 0.5)
         .to(
-          lettersRef.current,
-          {
-            yPercent: 0,
-            rotate: 0,
-            duration: 1.2,
-            stagger: 0.05,
-            ease: "expo.out",
-          },
-          0.6,
+          nameRef.current,
+          { yPercent: 0, duration: 1.2, stagger: 0.05, ease: "expo.out" },
+          0.1,
         )
-        .to(copyRef.current, { y: 0, opacity: 1, duration: 0.8 }, "-=0.6")
-        .to(ctaRef.current, { y: 0, opacity: 1, duration: 0.8 }, "-=0.6")
+        .to(
+          surnameRef.current,
+          { yPercent: 0, duration: 1.2, stagger: 0.05, ease: "expo.out" },
+          0.25,
+        )
+        .to(badgeRef.current, { y: 0, opacity: 1, duration: 0.7 }, 0.15)
+        .to(copyRef.current, { y: 0, opacity: 1, duration: 0.8 }, 0.3)
+        .to(ctaRef.current, { y: 0, opacity: 1, duration: 0.8 }, 0.45)
         .to(
           linksRef.current,
           { y: 0, opacity: 1, duration: 0.6, stagger: 0.1 },
-          "-=0.6",
+          0.6,
         )
-        .to(scrollRef.current, { opacity: 1, duration: 0.8 }, "-=0.4");
+        .to(scrollRef.current, { opacity: 1, duration: 0.8 }, 0.9);
 
       timelineRef.current = tl;
     }, containerRef);
@@ -171,13 +177,13 @@ const HeroSection = ({ ready = true }) => {
     if (ready) timelineRef.current?.play();
   }, [ready]);
 
-  const renderWord = (word, offset, outline) => (
+  const renderWord = (word, refs, outline) => (
     <span className="block overflow-hidden pb-[0.08em]">
       {word.split("").map((letter, index) => (
         <span
           key={index}
           ref={(el) => {
-            lettersRef.current[offset + index] = el;
+            refs.current[index] = el;
           }}
           className={`inline-block will-change-transform ${outline ? "text-transparent" : "text-white"}`}
           style={outline ? { WebkitTextStroke: "1.5px #ffffff" } : undefined}
@@ -256,14 +262,14 @@ const HeroSection = ({ ready = true }) => {
           </div>
 
           <h1 className="lemonmilk-font text-[min(16vw,15svh)] font-medium uppercase leading-[0.86] tracking-tighter md:text-[min(10.5vw,17svh)]">
-            {renderWord(NAME, 0, false)}
-            {renderWord(SURNAME, NAME.length, true)}
+            {renderWord(NAME, nameRef, false)}
+            {renderWord(SURNAME, surnameRef, true)}
           </h1>
 
           <div className="mt-4 flex items-center gap-3 text-lg font-medium md:mt-5 md:text-2xl">
             <span className="h-px w-8 bg-[#ff6b3d] md:w-10" />
             <span className="inline-block h-[1.4em] overflow-hidden leading-[1.4]">
-              <span ref={roleRef} className="inline-block text-[#ff9068]">
+              <span ref={roleRef} className="inline-block text-[#f96f45] will-change-transform">
                 {ROLES[0]}
               </span>
             </span>
