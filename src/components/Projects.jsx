@@ -166,7 +166,7 @@ const Projects = () => {
 
   return (
     <section
-      className="relative min-h-screen w-full overflow-hidden bg-[#090807] text-white"
+      className="relative min-h-screen w-full overflow-hidden text-white"
       id="projects"
     >
       <StarField seed={21} />

@@ -80,7 +80,7 @@ const HeroSection = ({ ready = true }) => {
 
   const isDesktop = useIsDesktop();
 
-  const bottomSpace = isDesktop ? 150 : 110;
+  const bottomSpace = isDesktop ? 104 : 28;
 
   const horizontalMask = isDesktop
     ? "linear-gradient(to right, transparent 0%, #000 30%, #000 82%, transparent 100%)"
@@ -90,7 +90,6 @@ const HeroSection = ({ ready = true }) => {
     ? "linear-gradient(to bottom, transparent 0%, #000 10%, #000 86%, transparent 100%)"
     : "linear-gradient(to bottom, transparent 0%, #000 10%, #000 60%, transparent 100%)";
 
-  // Role switching animation
   useEffect(() => {
     if (!ready) return;
 
@@ -133,7 +132,6 @@ const HeroSection = ({ ready = true }) => {
     };
   }, [ready]);
 
-  // Main entrance animation
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       gsap.set(
@@ -241,12 +239,10 @@ const HeroSection = ({ ready = true }) => {
     };
   }, []);
 
-  // Start animation after loader
   useEffect(() => {
     if (ready) timelineRef.current?.play();
   }, [ready]);
 
-  // Render individual letters for Rahul
   const renderName = (word) => (
     <span className="block overflow-hidden pb-[0.08em] lemonmilk-font">
       {word.split("").map((letter, index) => (
@@ -267,10 +263,10 @@ const HeroSection = ({ ready = true }) => {
     <div
       ref={containerRef}
       id="home"
-      className="relative h-[100svh] min-h-[700px] w-full overflow-hidden bg-[#050505] text-white md:min-h-[620px]"
+      className="relative h-[100svh] min-h-[560px] w-full overflow-hidden text-white md:min-h-[620px]"
     >
       <StarField seed={33} count={260} />
-      {/* Background grid */}
+
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.08]"
         style={{
@@ -283,12 +279,10 @@ const HeroSection = ({ ready = true }) => {
         }}
       />
 
-      {/* Orange glow */}
       <div className="pointer-events-none absolute right-[6%] top-[18%] hidden h-[55vh] w-[38vw] rounded-full bg-[#ff6b3d]/20 blur-[130px] md:block" />
 
-      {/* Profile image */}
-      <div className="absolute inset-x-0 top-0 h-[62svh] pt-20 md:inset-x-auto md:bottom-[30px] md:right-[10vw] md:h-auto md:pt-0">
-        <div className="h-full" style={mask(horizontalMask)}>
+      <div className="absolute inset-x-0 top-0 h-[60svh] pt-16 sm:pt-20 md:inset-x-auto md:bottom-[30px] md:right-[6vw] md:h-auto md:pt-0 lg:right-[10vw]">
+        <div className="mx-auto h-full max-w-[560px] md:mx-0 md:max-w-none" style={mask(horizontalMask)}>
           <div className="h-full" style={mask(verticalMask)}>
             <div className="relative h-full">
               <div
@@ -312,21 +306,20 @@ const HeroSection = ({ ready = true }) => {
         </div>
       </div>
 
-      {/* Overlays */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 via-45% to-transparent md:hidden" />
 
       <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-r from-[#050505] via-[#050505]/20 to-transparent md:block" />
 
-      {/* Main content */}
       <section
-        className="relative z-10 flex h-full items-end px-5 pt-20 md:items-center md:px-10"
-        style={{ paddingBottom: bottomSpace }}
+        className="relative z-10 flex h-full items-end px-5 pt-16 sm:px-8 sm:pt-20 md:items-center md:px-10 lg:px-14"
+        style={{
+          paddingBottom: `calc(${bottomSpace}px + env(safe-area-inset-bottom, 0px))`,
+        }}
       >
         <div className="w-full max-w-7xl">
-          {/* Availability */}
           <div
             ref={badgeRef}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs text-white/80 backdrop-blur sm:text-sm"
+            className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/80 backdrop-blur sm:mb-4 sm:px-3.5 sm:text-sm"
           >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#ff6b3d] opacity-80" />
@@ -340,8 +333,7 @@ const HeroSection = ({ ready = true }) => {
             </span>
           </div>
 
-          {/* Name */}
-          <h1 className="text-[min(16vw,15svh)] font-medium leading-[0.86] tracking-tighter md:text-[min(10.5vw,17svh)]">
+          <h1 className="text-[min(17vw,14svh)] font-medium leading-[0.86] tracking-tighter sm:text-[min(14vw,15svh)] md:text-[min(10.5vw,17svh)]">
             {renderName(NAME)}
 
             <span className="block overflow-visible pb-[0.08em]">
@@ -353,8 +345,7 @@ const HeroSection = ({ ready = true }) => {
             </span>
           </h1>
 
-          {/* Role */}
-          <div className="mt-4 flex items-center gap-3 text-lg font-medium md:mt-5 md:text-2xl">
+          <div className="mt-3 flex items-center gap-3 text-base font-medium sm:mt-4 sm:text-lg md:mt-5 md:text-2xl">
             <span className="h-px w-8 bg-[#ff6b3d] md:w-10" />
 
             <span className="inline-block h-[1.4em] overflow-hidden leading-[1.4]">
@@ -367,7 +358,6 @@ const HeroSection = ({ ready = true }) => {
             </span>
           </div>
 
-          {/* Description */}
           <p
             ref={copyRef}
             className="mt-4 hidden max-w-md text-base leading-relaxed text-white/70 md:block md:text-lg [@media(max-height:820px)]:hidden"
@@ -376,14 +366,13 @@ const HeroSection = ({ ready = true }) => {
             APIs and databases behind them.
           </p>
 
-          {/* Buttons */}
           <div
             ref={ctaRef}
-            className="mt-6 flex w-full items-center gap-3 md:mt-7 md:w-auto md:gap-4"
+            className="mt-5 flex w-full items-center gap-3 sm:mt-6 sm:max-w-md md:mt-7 md:w-auto md:max-w-none md:gap-4"
           >
             <a
               href="#projects"
-              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#ff6b3d] px-5 py-3.5 text-sm font-semibold text-[#050505] transition-transform duration-300 hover:scale-[1.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:flex-none md:px-7"
+              className="group inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#ff6b3d] px-4 py-3 text-sm font-semibold text-[#050505] transition-transform duration-300 hover:scale-[1.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:px-5 sm:py-3.5 md:flex-none md:px-7"
             >
               View projects
               <span className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
@@ -393,14 +382,13 @@ const HeroSection = ({ ready = true }) => {
 
             <a
               href="#contact"
-              className="inline-flex flex-1 items-center justify-center rounded-full border border-white/25 bg-black/30 px-5 py-3.5 text-sm font-semibold text-white backdrop-blur transition-colors duration-300 hover:border-[#ff6b3d] hover:text-[#ff9068] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ff6b3d] md:flex-none md:px-7"
+              className="inline-flex flex-1 items-center justify-center rounded-full border border-white/25 bg-black/30 px-4 py-3 text-sm font-semibold text-white backdrop-blur transition-colors duration-300 hover:border-[#ff6b3d] hover:text-[#ff9068] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ff6b3d] sm:px-5 sm:py-3.5 md:flex-none md:px-7"
             >
               Contact me
             </a>
           </div>
 
-          {/* Social links */}
-          <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/70 md:mt-7 md:gap-x-7 md:text-white/60">
+          <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70 sm:mt-6 sm:gap-x-6 md:mt-7 md:gap-x-7 md:text-white/60">
             {LINKS.map((l, i) => (
               <li
                 key={l.label}
@@ -423,12 +411,11 @@ const HeroSection = ({ ready = true }) => {
         </div>
       </section>
 
-      {/* Scroll indicator */}
       <a
         ref={scrollRef}
         href="#skills"
         aria-label="Scroll down"
-        className="absolute bottom-[150px] left-1/2 z-10 hidden h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border border-white/25 text-white transition-colors duration-300 hover:border-[#ff6b3d] hover:bg-[#ff6b3d] md:flex"
+        className="absolute bottom-8 left-1/2 z-10 hidden h-12 w-12 -translate-x-1/2 items-center justify-center rounded-full border border-white/25 text-white transition-colors duration-300 hover:border-[#ff6b3d] hover:bg-[#ff6b3d] md:flex"
       >
         <svg
           width="16"

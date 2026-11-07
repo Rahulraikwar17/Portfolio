@@ -120,7 +120,7 @@ const CopyButton = ({ copied, onCopy, label }) => (
 const ContactCard = ({ icon: Icon, label, value, children }) => (
   <article
     onMouseMove={handleCardMove}
-    className="group/card relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-colors duration-300 hover:border-white/25"
+    className="group/card relative min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-4 backdrop-blur-sm transition-colors duration-300 hover:border-white/25 sm:bg-white/[0.02] sm:p-5 sm:backdrop-blur-none"
   >
     <div
       aria-hidden="true"
@@ -128,7 +128,7 @@ const ContactCard = ({ icon: Icon, label, value, children }) => (
       style={{ background: CARD_GLOW }}
     />
 
-    <div className="relative flex flex-col gap-5">
+    <div className="relative flex flex-col gap-4 sm:gap-5">
       <div className="flex items-center gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-white/70">
           <Icon size={15} />
@@ -139,7 +139,9 @@ const ContactCard = ({ icon: Icon, label, value, children }) => (
             {label}
           </p>
 
-          <p className="break-all text-sm text-white md:text-base">{value}</p>
+          <p className="break-all text-[13px] text-white sm:text-sm md:text-base">
+            {value}
+          </p>
         </div>
       </div>
 
@@ -242,16 +244,15 @@ const Contact = () => {
     <section
       id="contact"
       ref={sectionRef}
-      className="relative min-h-screen w-full overflow-hidden bg-[#090807] text-white"
+      className="relative min-h-[100svh] w-full overflow-hidden text-white"
     >
-      {/* Background */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"
       >
-        <div className="absolute right-[-10%] top-[10%] h-[560px] w-[560px] rounded-full bg-white/[0.045] blur-[130px]" />
+        <div className="absolute right-[-30%] top-[5%] h-[320px] w-[320px] rounded-full bg-white/[0.045] blur-[100px] sm:right-[-10%] sm:top-[10%] sm:h-[560px] sm:w-[560px] sm:blur-[130px]" />
 
-        <div className="absolute bottom-[-15%] left-[-8%] h-[420px] w-[420px] rounded-full bg-[#4a64d8]/10 blur-[130px]" />
+        <div className="absolute bottom-[-10%] left-[-20%] h-[280px] w-[280px] rounded-full bg-[#4a64d8]/10 blur-[100px] sm:bottom-[-15%] sm:left-[-8%] sm:h-[420px] sm:w-[420px] sm:blur-[130px]" />
 
         <StarField seed={11} count={260} cluster />
 
@@ -260,56 +261,53 @@ const Contact = () => {
             src={FACE_IMAGE}
             alt=""
             draggable={false}
+            loading="lazy"
             onError={() => setImageFailed(true)}
-            className="absolute bottom-0 right-[2%] hidden h-[88%] w-auto max-w-none opacity-70 mix-blend-screen md:block"
+            className="absolute bottom-0 right-[-18%] h-[52%] w-auto max-w-none opacity-45 mix-blend-screen min-[480px]:right-[-8%] min-[480px]:h-[60%] min-[480px]:opacity-55 sm:right-[-4%] sm:h-[70%] sm:opacity-60 md:right-[2%] md:h-[88%] md:opacity-70"
             style={FACE_MASK}
           />
         )}
+
+        <div className="absolute inset-0 bg-gradient-to-b from-[#090807]/70 via-[#090807]/20 to-[#090807]/60 md:hidden" />
       </div>
 
-      {/* Main Container */}
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1600px] flex-col justify-between px-6 py-10 sm:px-8 md:px-10 lg:px-14 xl:px-16">
-        {/* Top Bar */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-5">
-          <p className="text-[10px] uppercase tracking-[0.45em] text-white/40">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1600px] flex-col justify-between px-5 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-14 xl:px-16">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4 sm:pb-5">
+          <p className="text-[10px] uppercase tracking-[0.35em] text-white/40 sm:tracking-[0.45em]">
             Contact
           </p>
 
-          <p className="font-mono text-[10px] text-white/30">
+          <p className="font-mono text-[9px] text-white/30 sm:text-[10px]">
             AVAILABLE FOR WORK
           </p>
         </div>
 
-        {/* Main Content */}
-        <div className="flex flex-1 flex-col justify-center py-14 md:py-16">
-          {/* Heading */}
+        <div className="flex flex-1 flex-col justify-center py-10 sm:py-12 md:py-16">
           <div ref={titleRef}>
-            <p className="mb-5 text-xs uppercase tracking-[0.4em] text-white/35">
+            <p className="mb-4 text-[10px] uppercase tracking-[0.3em] text-white/45 sm:mb-5 sm:text-xs sm:tracking-[0.4em]">
               Have a project in mind?
             </p>
 
-            <h2 className="text-[20vw] font-semibold leading-[0.82] tracking-[-0.07em] transition-colors duration-300  sm:text-[16vw] md:text-[13vw] lg:text-[11vw] xl:text-[10rem]">
+            <h2 className="text-[22vw] font-semibold leading-[0.85] tracking-[-0.07em] sm:text-[16vw] md:text-[13vw] lg:text-[11vw] xl:text-[10rem]">
               LET&apos;S
             </h2>
 
-            <h2 className="text-[20vw] font-semibold leading-[0.82] tracking-[-0.07em] transition-colors duration-300  sm:text-[16vw] md:text-[13vw] lg:text-[11vw] xl:text-[10rem]">
-              TALK<span className="text-white/25">.</span>
+            <h2 className="text-[22vw] font-semibold leading-[0.85] tracking-[-0.07em] sm:text-[16vw] md:text-[13vw] lg:text-[11vw] xl:text-[10rem]">
+              TALK<span className="text-[#092369]">.</span>
             </h2>
           </div>
 
-          {/* Description */}
           <p
             ref={textRef}
-            className="mt-10 max-w-xl text-sm leading-7 text-white/45 md:text-base"
+            className="mt-6 max-w-xl text-[13px] leading-6 text-white/60 sm:mt-8 sm:text-sm sm:leading-7 sm:text-white/45 md:mt-10 md:text-base"
           >
             I&apos;m always open to discussing new projects, creative ideas, or
             opportunities to be part of something interesting.
           </p>
 
-          {/* Contact Cards */}
           <div
             ref={cardsRef}
-            className="mt-8 grid w-full max-w-[760px] gap-4 sm:grid-cols-2"
+            className="mt-6 grid w-full max-w-[760px] grid-cols-1 gap-3 sm:mt-8 sm:gap-4 md:grid-cols-2"
           >
             <ContactCard icon={Mail} label="Email" value={EMAIL}>
               <a
@@ -343,10 +341,9 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* Footer */}
         <div
           ref={footerRef}
-          className="flex flex-col gap-6 border-t border-white/10 pt-6 md:flex-row md:items-center md:justify-between"
+          className="flex flex-col items-center gap-5 border-t border-white/10 pt-5 sm:gap-6 sm:pt-6 md:flex-row md:justify-between"
         >
           <div className="flex items-center gap-3">
             {socials.map(({ label, href, icon: Icon }) => (
@@ -356,14 +353,14 @@ const Contact = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all duration-300 hover:border-white/40 hover:bg-white hover:text-black"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/50 transition-all duration-300 hover:border-white/40 hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
               >
                 <Icon size={16} />
               </a>
             ))}
           </div>
 
-          <p className="text-[10px] uppercase tracking-[0.3em] text-white/25">
+          <p className="text-center text-[10px] uppercase tracking-[0.25em] text-white/30 sm:tracking-[0.3em]">
             © {new Date().getFullYear()} Rahul Raikwar
           </p>
 
