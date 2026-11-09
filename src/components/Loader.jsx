@@ -170,7 +170,7 @@ export default function Loader({ images = [], onReveal, onComplete }) {
       if (cancelled || !rootRef.current) return;
       rootRef.current.style.pointerEvents = "none";
 
-      // The content fades out first, then the whole screen lifts like a curtain.
+
       exitTimeline = gsap
         .timeline({ onComplete: () => setVisible(false) })
         .to(
