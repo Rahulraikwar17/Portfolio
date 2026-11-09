@@ -38,11 +38,11 @@ body {
 
 html,
 body {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* purana Edge/IE */
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
 }
 
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+  display: none;
 }
