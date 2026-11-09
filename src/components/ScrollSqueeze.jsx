@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import gsap from "gsap";
 
+const DESKTOP_ONLY =
+  "(min-width: 768px) and (hover: hover) and (prefers-reduced-motion: no-preference)";
+
 const docTop = (el) => {
   let top = 0;
   let node = el;
@@ -13,73 +16,80 @@ const docTop = (el) => {
 
 const ScrollSqueeze = ({
   selector = "main > *:not([data-no-squeeze])",
-  maxCompress = 0.06,
-  fullAt = 25,
+  maxCompress = 0.12,
+  sideRatio = 0.35,
+  fullAt = 20,
 }) => {
   useEffect(() => {
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    if (reduceMotion) return;
+    const mm = gsap.matchMedia();
 
-    const targets = gsap.utils.toArray(selector);
-    const items = targets.map((el) => ({
-      el,
-      set: gsap.quickTo(el, "scaleY", { duration: 0.45, ease: "power3.out" }),
-    }));
+    mm.add(DESKTOP_ONLY, () => {
+      const targets = gsap.utils.toArray(selector);
 
-    gsap.set(targets, { willChange: "transform" });
+      const items = targets.map((el) => ({
+        el,
+        setY: gsap.quickTo(el, "scaleY", { duration: 0.45, ease: "power3.out" }),
+        setX: gsap.quickTo(el, "scaleX", { duration: 0.45, ease: "power3.out" }),
+      }));
 
-    let lenis = null;
-    let retry;
-    let idle;
+      gsap.set(targets, { willChange: "transform" });
 
-    const apply = (value) => {
-      const vh = window.innerHeight;
-      const scrollY = window.scrollY;
+      let lenis = null;
+      let retry;
+      let idle;
 
-      items.forEach(({ el, set }) => {
-        const top = docTop(el);
-        const bottom = top + el.offsetHeight;
-        const visible = bottom > scrollY && top < scrollY + vh;
+      const apply = (amount) => {
+        const vh = window.innerHeight;
+        const scrollY = window.scrollY;
 
-        if (visible && value !== 1) {
-          gsap.set(el, { transformOrigin: `50% ${scrollY + vh / 2 - top}px` });
+        items.forEach(({ el, setY, setX }) => {
+          const top = docTop(el);
+          const bottom = top + el.offsetHeight;
+          const visible = bottom > scrollY && top < scrollY + vh;
+
+          if (visible && amount > 0) {
+            gsap.set(el, {
+              transformOrigin: `50% ${scrollY + vh / 2 - top}px`,
+            });
+          }
+
+          setY(visible ? 1 - amount : 1);
+          setX(visible ? 1 - amount * sideRatio : 1);
+        });
+      };
+
+      const onScroll = (l) => {
+        const v = Math.abs(l.velocity || 0);
+        const amount = Math.min(v / fullAt, 1) * maxCompress;
+
+        apply(amount);
+
+        clearTimeout(idle);
+        idle = setTimeout(() => apply(0), 150);
+      };
+
+      const attach = () => {
+        lenis = window.lenis;
+        if (!lenis) {
+          retry = setTimeout(attach, 200);
+          return;
         }
+        lenis.on("scroll", onScroll);
+      };
+      attach();
 
-        set(visible ? value : 1);
-      });
-    };
+      return () => {
+        clearTimeout(idle);
+        clearTimeout(retry);
+        lenis?.off?.("scroll", onScroll);
+        gsap.set(targets, {
+          clearProps: "transform,willChange,transformOrigin",
+        });
+      };
+    });
 
-    const onScroll = (l) => {
-      const v = Math.abs(l.velocity || 0);
-      const amount = Math.min(v / fullAt, 1) * maxCompress;
-
-      apply(1 - amount);
-
-      clearTimeout(idle);
-      idle = setTimeout(() => apply(1), 150);
-    };
-
-    const attach = () => {
-      lenis = window.lenis;
-      if (!lenis) {
-        retry = setTimeout(attach, 200);
-        return;
-      }
-      lenis.on("scroll", onScroll);
-    };
-    attach();
-
-    return () => {
-      clearTimeout(idle);
-      clearTimeout(retry);
-      lenis?.off?.("scroll", onScroll);
-      gsap.set(targets, {
-        clearProps: "transform,willChange,transformOrigin",
-      });
-    };
-  }, [selector, maxCompress, fullAt]);
+    return () => mm.revert();
+  }, [selector, maxCompress, sideRatio, fullAt]);
 
   return null;
 };

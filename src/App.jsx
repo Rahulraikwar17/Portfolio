@@ -13,7 +13,6 @@ import Contact from "./components/Contact";
 import Marquee from "./components/marquee";
 import Loader from "./components/Loader.jsx";
 import ScrollSqueeze from "./components/ScrollSqueeze.jsx";
-import StarField from "./components/StarField.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -65,7 +64,6 @@ const App = () => {
 
   return (
     <div className="relative isolate min-h-screen w-full bg-black">
-      <StarField fixed className="-z-10" count={100} seed={33} />
 
       <Loader
         images={[HERO_IMAGE]}

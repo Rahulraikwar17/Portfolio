@@ -74,7 +74,7 @@ const About = () => {
     <section
       ref={sectionRef}
       id="about"
-      className="relative z-10 w-full overflow-hidden px-5 py-28 bg-black text-white sm:px-8 md:py-36 lg:px-12"
+      className="relative z-10 w-full overflow-hidden px-5 py-28 text-white sm:px-8 md:py-36 lg:px-12"
     >
       <div className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-[#FF6B3D]/10 blur-[140px]" />
 
