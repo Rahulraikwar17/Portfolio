@@ -17,7 +17,6 @@ import {
 } from "react-icons/si";
 
 import { MousePointerClick, Hand } from "lucide-react";
-import StarField from "./StarField.jsx";
 
 const skills = [
   {
@@ -342,10 +341,10 @@ const Skills = () => {
       ref={sectionRef}
       onClick={handleSectionClick}
       id="skills"
-      className="relative w-full overflow-hidden bg-[#000] text-white"
+      className="relative w-full overflow-hidden text-white"
       style={{ minHeight: `max(100svh, ${size + 260}px)` }}
     >
-       <StarField seed={33} count={260} />
+      
       <div className="relative z-20 px-4 pt-20 text-center md:pt-24">
         <p className="text-[10px] uppercase tracking-[0.4em] text-white/35 md:tracking-[0.5em]">
           What I Work With

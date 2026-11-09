@@ -4,7 +4,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight, Check, Copy, Mail, Phone } from "lucide-react";
 import { FaGithub, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
 import { BsDiscord } from "react-icons/bs";
-import StarField from "./StarField";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -253,8 +252,6 @@ const Contact = () => {
         <div className="absolute right-[-30%] top-[5%] h-[320px] w-[320px] rounded-full bg-white/[0.045] blur-[100px] sm:right-[-10%] sm:top-[10%] sm:h-[560px] sm:w-[560px] sm:blur-[130px]" />
 
         <div className="absolute bottom-[-10%] left-[-20%] h-[280px] w-[280px] rounded-full bg-[#4a64d8]/10 blur-[100px] sm:bottom-[-15%] sm:left-[-8%] sm:h-[420px] sm:w-[420px] sm:blur-[130px]" />
-
-        <StarField seed={11} count={260} cluster />
 
         {!imageFailed && (
           <img

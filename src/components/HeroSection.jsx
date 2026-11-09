@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import PsychedelicText from "./PsychedelicText";
-import StarField from "./StarField.jsx";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const IMAGE_SRC = "/me2.png";
 const NAME = "Rahul";
@@ -243,6 +245,40 @@ const HeroSection = ({ ready = true }) => {
     if (ready) timelineRef.current?.play();
   }, [ready]);
 
+  useLayoutEffect(() => {
+    const about = document.querySelector("#about");
+    const hero = containerRef.current;
+    if (!about || !hero) return;
+
+    const mm = gsap.matchMedia();
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.set(hero, { transformOrigin: "50% 100%" });
+
+      gsap.to(hero, {
+        autoAlpha: 0,
+        scale: 0.92,
+        yPercent: -12,
+        ease: "none",
+        scrollTrigger: {
+          trigger: about,
+          start: "top bottom",
+          end: "top top",
+          scrub: true,
+        },
+      });
+    });
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      hero.style.position = "relative";
+      return () => {
+        hero.style.position = "";
+      };
+    });
+
+    return () => mm.revert();
+  }, []);
+
   const renderName = (word) => (
     <span className="block overflow-hidden pb-[0.08em] lemonmilk-font">
       {word.split("").map((letter, index) => (
@@ -263,26 +299,18 @@ const HeroSection = ({ ready = true }) => {
     <div
       ref={containerRef}
       id="home"
-      className="relative h-[100svh] min-h-[560px] w-full overflow-hidden text-white md:min-h-[620px]"
+      data-no-squeeze
+      className="sticky top-0 z-0 h-[100svh] min-h-[560px] w-full overflow-hidden text-white will-change-transform md:min-h-[620px]"
     >
-      <StarField seed={33} count={260} />
-
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.08]"
-        style={{
-          backgroundImage:
-            "linear-gradient(#ff6b3d 1px, transparent 1px), linear-gradient(90deg, #ff6b3d 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-          ...mask(
-            "radial-gradient(ellipse 70% 60% at 30% 40%, black, transparent)",
-          ),
-        }}
-      />
+  
 
       <div className="pointer-events-none absolute right-[6%] top-[18%] hidden h-[55vh] w-[38vw] rounded-full bg-[#ff6b3d]/20 blur-[130px] md:block" />
 
       <div className="absolute inset-x-0 top-0 h-[60svh] pt-16 sm:pt-20 md:inset-x-auto md:bottom-[30px] md:right-[6vw] md:h-auto md:pt-0 lg:right-[10vw]">
-        <div className="mx-auto h-full max-w-[560px] md:mx-0 md:max-w-none" style={mask(horizontalMask)}>
+        <div
+          className="mx-auto h-full max-w-[560px] md:mx-0 md:max-w-none"
+          style={mask(horizontalMask)}
+        >
           <div className="h-full" style={mask(verticalMask)}>
             <div className="relative h-full">
               <div

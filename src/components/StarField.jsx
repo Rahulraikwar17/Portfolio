@@ -51,6 +51,7 @@ const StarField = ({
   count = 200,
   seed = 11,
   cluster = false,
+  fixed = false,
   className = "",
 }) => {
   const canvasRef = useRef(null);
@@ -137,7 +138,9 @@ const StarField = ({
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className={`pointer-events-none absolute inset-0 h-full w-full ${className}`}
+      className={`pointer-events-none inset-0 h-full w-full ${
+        fixed ? "fixed" : "absolute"
+      } ${className}`}
     />
   );
 };

@@ -20,7 +20,6 @@ import {
   HardDrive,
   Send,
 } from "lucide-react";
-import StarField from "./StarField";
 
 const FRONTEND = [
   { name: "React", icon: Atom },
@@ -93,7 +92,7 @@ const Marquee = () => (
       @media (prefers-reduced-motion: reduce) { .skills-track { animation: none; } }
     `}</style>
 
-    <StarField seed={33} count={160} />
+
 
  
     <div

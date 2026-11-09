@@ -12,6 +12,8 @@ import CustomCursor from "./components/CustomCursor";
 import Contact from "./components/Contact";
 import Marquee from "./components/marquee";
 import Loader from "./components/Loader.jsx";
+import ScrollSqueeze from "./components/ScrollSqueeze.jsx";
+import StarField from "./components/StarField.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -31,7 +33,6 @@ const App = () => {
       smoothWheel: true,
     });
 
-    // Scrolling stays locked until the loader has fully left the screen.
     lenis.stop();
     window.lenis = lenis;
 
@@ -63,7 +64,9 @@ const App = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-black">
+    <div className="relative isolate min-h-screen w-full bg-black">
+      <StarField fixed className="-z-10" count={100} seed={33} />
+
       <Loader
         images={[HERO_IMAGE]}
         onReveal={handleReveal}
@@ -71,6 +74,7 @@ const App = () => {
       />
       <CustomCursor />
 
+      <ScrollSqueeze maxCompress={0.3} fullAt={30} />
       <Navbar />
 
       <main>

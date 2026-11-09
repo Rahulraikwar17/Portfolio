@@ -5,7 +5,7 @@ import project1 from "../assets/images/project1.png";
 import project2 from "../assets/images/project2.png";
 import project3 from "../assets/images/project3.png";
 import PsychedelicText from "./PsychedelicText.jsx";
-import StarField from "./StarField.jsx";
+
 
 const projects = [
   {
@@ -169,7 +169,7 @@ const Projects = () => {
       className="relative min-h-screen w-full overflow-hidden text-white"
       id="projects"
     >
-      <StarField seed={21} />
+     
 
       <div className="relative z-10 flex min-h-screen flex-col items-center">
         <div className="absolute top-[9%] z-30 text-center">
