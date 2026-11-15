@@ -63,11 +63,11 @@ const Row = ({ items, direction, duration, durationMobile }) => {
             {group.map(({ name, icon: Icon }, i) => (
               <li
                 key={`${g}-${i}`}
-                className="mx-1.5 flex cursor-default items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-zinc-400 transition-colors duration-300 hover:text-[#FF6B3D] md:mx-0 md:gap-3 md:border-transparent md:bg-transparent md:px-10 md:py-0 md:text-zinc-500"
+                className="mx-1.5 flex cursor-default items-center gap-2 rounded-full border border-[#6d8f63]/40 bg-[#6d8f63]/10 px-4 py-2 text-[#d6ffe6]/75 transition-colors duration-300 hover:border-[#39ff88]/60 hover:text-[#39ff88] md:mx-0 md:gap-3 md:border-transparent md:bg-transparent md:px-8 md:py-0"
               >
                 <Icon
                   strokeWidth={1.6}
-                  className="h-[18px] w-[18px] shrink-0 md:h-[30px] md:w-[30px]"
+                  className="h-[18px] w-[18px] shrink-0 md:h-[28px] md:w-[28px]"
                 />
                 <span className="whitespace-nowrap text-xs font-semibold tracking-[0.1em] md:text-sm md:tracking-[0.12em]">
                   {name}
@@ -82,10 +82,7 @@ const Row = ({ items, direction, duration, durationMobile }) => {
 };
 
 const Marquee = () => (
-  <section
-    id="skills"
-    className="relative overflow-hidden bg-transparent py-10 font-['Space_Grotesk',sans-serif] md:py-16"
-  >
+  <div className="font-['Space_Grotesk',sans-serif]">
     <style>{`
       @keyframes skills-left  { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
       @keyframes skills-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
@@ -93,20 +90,16 @@ const Marquee = () => (
       .skills-track.to-left  { animation-name: skills-left; }
       .skills-track.to-right { animation-name: skills-right; }
       .skills-fade {
-        mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-        -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+        mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
       }
       @media (min-width: 768px) {
         .skills-track { animation-duration: var(--dd); }
-        .skills-fade {
-          mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
-          -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
-        }
       }
       @media (prefers-reduced-motion: reduce) { .skills-track { animation: none; } }
     `}</style>
 
-    <div className="skills-fade relative z-10 flex flex-col gap-3 md:gap-10">
+    <div className="skills-fade flex flex-col gap-3 md:gap-8">
       <Row
         items={FRONTEND}
         direction="right"
@@ -120,7 +113,7 @@ const Marquee = () => (
         durationMobile={42}
       />
     </div>
-  </section>
+  </div>
 );
 
 export default Marquee;

@@ -1,14 +1,14 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
-
-
 const links = [
   { id: "projects", label: "Projects" },
   { id: "skills", label: "Skills" },
   { id: "about", label: "About" },
   { id: "contact", label: "Contact" },
 ];
+
+const OVERLAY_BG = "radial-gradient(90% 70% at 60% 35%, #0b1a10 0%, #000000 70%)";
 
 const Logo = () => (
   <video
@@ -19,7 +19,7 @@ const Logo = () => (
     playsInline
     preload="auto"
     aria-hidden="true"
-    className="h-9 w-9 rounded-full object-cover"
+    className="h-9 w-9 rounded-full border object-cover"
   />
 );
 
@@ -31,7 +31,6 @@ const Navbar = () => {
   const pillRef = useRef(null);
   const overlayRef = useRef(null);
   const overlayLinksRef = useRef([]);
-
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -45,7 +44,6 @@ const Navbar = () => {
     });
     return () => ctx.revert();
   }, []);
-
 
   useEffect(() => {
     let last = window.scrollY;
@@ -72,7 +70,6 @@ const Navbar = () => {
     };
   }, []);
 
- 
   useEffect(() => {
     const obs = new IntersectionObserver(
       (entries) =>
@@ -94,6 +91,7 @@ const Navbar = () => {
 
     const overlay = overlayRef.current;
     if (!overlay) return;
+
     if (open) {
       gsap.set(overlay, { display: "flex" });
       gsap.to(overlay, {
@@ -120,12 +118,12 @@ const Navbar = () => {
         onComplete: () => gsap.set(overlay, { display: "none" }),
       });
     }
+
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
 
-  
   const goTo = (e, id) => {
     e.preventDefault();
     const wasOpen = open;
@@ -144,7 +142,7 @@ const Navbar = () => {
 
         const el = document.getElementById(id);
         if (!el) {
-          console.warn(`Section id="${id}" nahi mila`);
+          console.warn(`Section id="${id}" not found`);
           return;
         }
 
@@ -158,11 +156,10 @@ const Navbar = () => {
 
   return (
     <>
-
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-[999] hidden flex-col justify-center gap-2 bg-[#050505] px-8 md:hidden"
-        style={{ clipPath: "circle(0% at 90% 5%)" }}
+        className="fixed inset-0 z-[999] hidden flex-col justify-center gap-2 px-8 md:hidden"
+        style={{ background: OVERLAY_BG, clipPath: "circle(0% at 90% 5%)" }}
       >
         {links.map((l, i) => (
           <div key={l.id} className="overflow-hidden">
@@ -172,10 +169,10 @@ const Navbar = () => {
               }}
               href={`#${l.id}`}
               onClick={(e) => goTo(e, l.id)}
-              className={`lemonmilk-font block py-1 text-5xl font-medium tracking-tight transition-colors ${
+              className={`lemonmilk-font block py-1 text-4xl font-medium tracking-[-0.02em] transition-colors ${
                 active === l.id
-                  ? "text-[#ff6b3d]"
-                  : "text-white hover:text-[#ff6b3d]"
+                  ? "text-[#39ff88]"
+                  : "text-[#d6ffe6] hover:text-[#39ff88]"
               }`}
             >
               {l.label}
@@ -191,33 +188,32 @@ const Navbar = () => {
       >
         <div
           ref={pillRef}
-          className="relative mx-auto flex w-full items-center justify-between overflow-hidden rounded-full md:w-fit md:gap-2 md:pr-2 border border-white/10 bg-[#050505]/60 p-2 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-xl backdrop-saturate-150"
+          className="relative mx-auto flex w-full items-center justify-between overflow-hidden rounded-full border border-[#6d8f63]/35 bg-black/60 p-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl backdrop-saturate-150 md:w-fit md:gap-2 md:pr-2"
         >
-       
           <a
             href="#home"
             onClick={(e) => goTo(e, "home")}
             aria-label="Rahul Raikwar, home"
+            className="rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "
           >
             <Logo />
           </a>
 
           <span
-            className="hidden h-6 w-px bg-white/10 md:block"
+            className="hidden h-6 w-px bg-[#6d8f63]/35 md:block"
             aria-hidden="true"
           />
 
-     
           <ul className="hidden items-center gap-1 md:flex">
             {links.map((l) => (
               <li key={l.id}>
                 <a
                   href={`#${l.id}`}
                   onClick={(e) => goTo(e, l.id)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                  className={`rounded-full px-4 py-2 font-mono text-xs transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#39ff88] ${
                     active === l.id
-                      ? "bg-[#ff6b3d]/15 text-[#ff9068]"
-                      : "text-white/60 hover:text-white"
+                      ? "bg-[#39ff88]/10 text-[#39ff88]"
+                      : "text-[#6d8f63] hover:text-[#d6ffe6]"
                   }`}
                 >
                   {l.label}
@@ -226,11 +222,10 @@ const Navbar = () => {
             ))}
           </ul>
 
-   
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setOpen((v) => !v)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white md:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#6d8f63]/50 text-[#d6ffe6] transition-colors duration-300 hover:border-[#39ff88] hover:text-[#39ff88] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#39ff88]"
               aria-label="Toggle menu"
               aria-expanded={open}
             >

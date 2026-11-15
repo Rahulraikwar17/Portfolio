@@ -52,19 +52,6 @@ const About = () => {
           },
         });
       });
-
-      gsap.from(".about-chip", {
-        opacity: 0,
-        y: 16,
-        duration: 0.6,
-        stagger: 0.05,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ".about-stack",
-          start: "top 88%",
-          once: true,
-        },
-      });
     });
 
     return () => mm.revert();
@@ -74,49 +61,47 @@ const About = () => {
     <section
       ref={sectionRef}
       id="about"
-      className="relative z-10 w-full overflow-hidden px-5 py-28 text-white sm:px-8 md:py-36 lg:px-12"
+      className="relative z-10 w-full overflow-hidden px-5 py-28 text-[#d6ffe6] sm:px-8 md:py-36 lg:px-12"
     >
-      <div className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-[#FF6B3D]/10 blur-[140px]" />
+      <div className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-[#39ff88]/[0.07] blur-[140px]" />
+      <div className="pointer-events-none absolute -right-40 bottom-0 h-80 w-80 rounded-full bg-[#6d8f63]/[0.12] blur-[140px]" />
 
       <div
         ref={contentRef}
         className="relative z-10 mx-auto w-full max-w-[1500px]"
       >
-        {/* Heading */}
         <div className="mb-16 text-center md:mb-24">
-          <p className="text-[10px] uppercase tracking-[0.5em] text-white/30">
+          <p className="text-[10px] uppercase tracking-[0.5em] text-[#6d8f63]">
             Get to know me
           </p>
 
-          <h2 className="mt-3 text-5xl font-medium tracking-tight transition-colors duration-300 hover:text-[#FF6B3D] md:text-7xl">
+          <h2 className="mt-3 text-5xl font-medium tracking-tight md:text-7xl">
             <PsychedelicText text="About" />
           </h2>
         </div>
 
-        {/* About Content */}
         <div className="grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-start md:gap-12 lg:gap-20 xl:gap-24">
-          {/* Left */}
           <div className="md:sticky md:top-28">
-            <p className="text-[11px] uppercase tracking-[0.4em] text-white/30">
+            <p className="flex items-center gap-3 text-[11px] uppercase tracking-[0.4em] text-[#6d8f63]">
+              <span className="h-px w-8 bg-[#39ff88]" />
               Who am I?
             </p>
 
-            <h3 className="mt-6 text-4xl font-medium leading-[1.05] transition-colors duration-300 hover:text-[#FF6B3D] sm:text-5xl md:text-6xl lg:text-7xl">
+            <h3 className="mt-6 text-4xl font-medium leading-[1.05] transition-[color,text-shadow] duration-300 hover:text-[#39ff88] hover:[text-shadow:0_0_0.3em_rgba(57,255,136,0.45)] sm:text-5xl md:text-6xl lg:text-7xl">
               I build complete
               <br />
               web products.
             </h3>
           </div>
 
-          {/* Right */}
-          <div className="max-w-2xl md:ml-auto">
-            <p className="about-paragraph text-lg leading-relaxed text-white/60 md:text-xl">
+          <div className="max-w-2xl border-l border-[#6d8f63]/30 pl-5 sm:pl-8 md:ml-auto">
+            <p className="about-paragraph text-lg leading-relaxed text-[#d6ffe6]/70 md:text-xl">
               I'm Rahul Raikwar, a full stack developer who designs the
               interface and builds the server behind it, from the first
               animation to the last API route.
             </p>
 
-            <p className="about-paragraph mt-6 text-base leading-relaxed text-white/40">
+            <p className="about-paragraph mt-6 text-base leading-relaxed text-[#6d8f63]">
               I started with frontend, crafting interactive experiences with
               React and GSAP. Now I also build backends with Node.js, Express
               and MongoDB, so I can take an idea all the way to a working,

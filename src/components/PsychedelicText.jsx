@@ -1,11 +1,15 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 
+const NEON = "#39ff88";
+const NEON_RGB = "57, 255, 136";
+
 const PsychedelicText = ({
   text = "raikwar",
   lettersRef,
   className = "",
   strokeWidth = 1.5,
+  strokeColor = "#6d8f63",
 }) => {
   const wrapperRef = useRef(null);
   const localRefs = useRef([]);
@@ -95,7 +99,7 @@ const PsychedelicText = ({
           rotation: 0,
           color: "transparent",
           textShadow: "0 0 0 transparent",
-          webkitTextStrokeColor: "#FF6B3D",
+          webkitTextStrokeColor: strokeColor,
           duration: 0.55,
           ease: "power3.out",
           overwrite: "auto",
@@ -119,9 +123,9 @@ const PsychedelicText = ({
         scaleY: stretchY,
         skewY: Math.cos(angle) * 3 * influence,
         rotation: Math.sin(angle) * 2.5 * influence,
-        color: `rgba(255, 107, 61, ${influence * 0.9})`,
-        webkitTextStrokeColor: "#FF9068",
-        textShadow: `0 0 ${9 * influence}px rgba(255,107,61,0.45)`,
+        color: `rgba(${NEON_RGB}, ${influence * 0.9})`,
+        webkitTextStrokeColor: NEON,
+        textShadow: `0 0 ${12 * influence}px rgba(${NEON_RGB}, 0.6)`,
         duration: 0.35,
         ease: "power3.out",
         overwrite: "auto",
@@ -141,7 +145,7 @@ const PsychedelicText = ({
         skewY: 0,
         rotation: 0,
         color: "transparent",
-        webkitTextStrokeColor: "#FF6B3D",
+        webkitTextStrokeColor: strokeColor,
         textShadow: "0 0 0 transparent",
         duration: 0.9,
         ease: "elastic.out(1, 0.5)",
@@ -171,7 +175,7 @@ const PsychedelicText = ({
           className="inline-block will-change-transform"
           style={{
             color: "transparent",
-            WebkitTextStroke: `${strokeWidth}px #FF6B3D`,
+            WebkitTextStroke: `${strokeWidth}px ${strokeColor}`,
             transformOrigin: "center center",
           }}
         >

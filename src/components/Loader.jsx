@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
@@ -20,10 +21,11 @@ const SCROLL_KEYS = [
 
 const GRID_STYLE = {
   backgroundImage:
-    "linear-gradient(#ff6b3d 1px, transparent 1px), linear-gradient(90deg, #ff6b3d 1px, transparent 1px)",
+    "linear-gradient(#39ff88 1px, transparent 1px), linear-gradient(90deg, #39ff88 1px, transparent 1px)",
   backgroundSize: "64px 64px",
   maskImage: "radial-gradient(circle at center, black, transparent 65%)",
-  WebkitMaskImage: "radial-gradient(circle at center, black, transparent 65%)",
+  WebkitMaskImage:
+    "radial-gradient(circle at center, black, transparent 65%)",
 };
 
 function wait(ms) {
@@ -33,12 +35,15 @@ function wait(ms) {
 function preload(src) {
   return new Promise((resolve) => {
     const timer = setTimeout(resolve, IMAGE_TIMEOUT);
+
     const done = () => {
       clearTimeout(timer);
       resolve();
     };
+
     const img = new Image();
     img.src = src;
+
     if (typeof img.decode === "function") {
       img.decode().then(done, done);
     } else {
@@ -53,14 +58,15 @@ function waitForFonts() {
 
   const heading = document.querySelector("h1");
   const loads = [];
+
   if (heading) {
     const cs = getComputedStyle(heading);
     loads.push(
       document.fonts
         .load(
-          `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`,
+          `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`
         )
-        .catch(() => null),
+        .catch(() => null)
     );
   }
 
@@ -70,8 +76,9 @@ function waitForFonts() {
 
 function waitForPageLoad() {
   if (document.readyState === "complete") return Promise.resolve();
+
   return new Promise((resolve) =>
-    window.addEventListener("load", resolve, { once: true }),
+    window.addEventListener("load", resolve, { once: true })
   );
 }
 
@@ -87,6 +94,7 @@ export default function Loader({ images = [], onReveal, onComplete }) {
   const imagesRef = useRef(images);
   const onRevealRef = useRef(onReveal);
   const onCompleteRef = useRef(onComplete);
+
   onRevealRef.current = onReveal;
   onCompleteRef.current = onComplete;
 
@@ -104,16 +112,20 @@ export default function Loader({ images = [], onReveal, onComplete }) {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
+
     window.scrollTo(0, 0);
 
     const blockScroll = (e) => {
       if (e.ctrlKey) return;
       if (e.cancelable) e.preventDefault();
     };
+
     const blockKeys = (e) => {
-      if (SCROLL_KEYS.includes(e.key) && e.cancelable) e.preventDefault();
+      if (SCROLL_KEYS.includes(e.key) && e.cancelable) {
+        e.preventDefault();
+      }
     };
-    // Safety net: if anything still moves the page, put it back at the top.
+
     const keepTop = () => {
       if (window.scrollY !== 0) window.scrollTo(0, 0);
     };
@@ -133,7 +145,6 @@ export default function Loader({ images = [], onReveal, onComplete }) {
     };
   }, [visible]);
 
-  // Runs after the lock above has been released and the loader has unmounted.
   useEffect(() => {
     if (!visible) onCompleteRef.current?.();
   }, [visible]);
@@ -146,42 +157,54 @@ export default function Loader({ images = [], onReveal, onComplete }) {
     let finish;
     let pause;
     let exitTimeline;
+
     const progress = { value: 0 };
+
     const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
+      "(prefers-reduced-motion: reduce)"
     ).matches;
 
     const render = () => {
       const value = progress.value;
+
       if (ringRef.current) {
         ringRef.current.style.strokeDashoffset = String(
-          RING_LENGTH * (1 - value / 100),
+          RING_LENGTH * (1 - value / 100)
         );
       }
+
       if (counterRef.current) {
-        counterRef.current.textContent = String(Math.round(value)).padStart(
-          2,
-          "0",
-        );
+        counterRef.current.textContent = String(
+          Math.round(value)
+        ).padStart(2, "0");
       }
     };
 
     const exit = () => {
       if (cancelled || !rootRef.current) return;
-      rootRef.current.style.pointerEvents = "none";
 
+      rootRef.current.style.pointerEvents = "none";
 
       exitTimeline = gsap
         .timeline({ onComplete: () => setVisible(false) })
         .to(
           contentRef.current,
-          { opacity: 0, scale: 0.9, duration: 0.45, ease: "power2.in" },
-          0.1,
+          {
+            opacity: 0,
+            scale: 0.9,
+            duration: 0.45,
+            ease: "power2.in",
+          },
+          0.1
         )
         .to(
           rootRef.current,
-          { yPercent: -100, duration: 1, ease: "power4.inOut" },
-          0.45,
+          {
+            yPercent: -100,
+            duration: 1,
+            ease: "power4.inOut",
+          },
+          0.45
         )
         .add(() => onRevealRef.current?.(), 0.75);
     };
@@ -195,12 +218,14 @@ export default function Loader({ images = [], onReveal, onComplete }) {
         duration: 0.8,
         ease: "power3.out",
       });
+
       gsap.to(orbitRef.current, {
         rotation: 360,
         duration: 9,
         ease: "none",
         repeat: -1,
       });
+
       gsap.fromTo(
         glowRef.current,
         { scale: 0.9, opacity: 0.2 },
@@ -211,13 +236,12 @@ export default function Loader({ images = [], onReveal, onComplete }) {
           ease: "sine.inOut",
           yoyo: true,
           repeat: -1,
-        },
+        }
       );
     }, rootRef);
 
     render();
 
-  
     crawl = gsap.to(progress, {
       value: 88,
       duration: 3,
@@ -232,7 +256,9 @@ export default function Loader({ images = [], onReveal, onComplete }) {
       wait(MIN_DURATION),
     ]).then(() => {
       if (cancelled) return;
+
       crawl.kill();
+
       finish = gsap.to(progress, {
         value: 100,
         duration: 0.6,
@@ -271,7 +297,7 @@ export default function Loader({ images = [], onReveal, onComplete }) {
       <div ref={contentRef} className="relative h-40 w-40">
         <div
           ref={glowRef}
-          className="absolute inset-4 rounded-full bg-[#ff6b3d] blur-[50px]"
+          className="absolute inset-4 rounded-full bg-[#39ff88] blur-[50px]"
           style={{ opacity: 0.2 }}
         />
 
@@ -293,13 +319,14 @@ export default function Loader({ images = [], onReveal, onComplete }) {
             stroke="rgba(255,255,255,0.1)"
             strokeWidth="2"
           />
+
           <circle
             ref={ringRef}
             cx="60"
             cy="60"
             r={RING_RADIUS}
             fill="none"
-            stroke="#ff6b3d"
+            stroke="#39ff88"
             strokeWidth="2"
             strokeLinecap="round"
             strokeDasharray={RING_LENGTH}
@@ -315,11 +342,14 @@ export default function Loader({ images = [], onReveal, onComplete }) {
             >
               00
             </span>
-            <span className="ml-1 text-sm leading-none text-white/50">%</span>
+
+            <span className="ml-1 text-sm leading-none text-white/50">
+              %
+            </span>
           </div>
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }

@@ -10,7 +10,6 @@ import Skills from "./components/Skills";
 import About from "./components/About";
 import CustomCursor from "./components/CustomCursor";
 import Contact from "./components/Contact";
-import Marquee from "./components/marquee";
 import Loader from "./components/Loader.jsx";
 import ScrollSqueeze from "./components/ScrollSqueeze.jsx";
 
@@ -78,7 +77,6 @@ const App = () => {
       <main>
         <HeroSection ready={ready} />
         <About />
-        <Marquee />
 
         <Skills />
         <Projects />
