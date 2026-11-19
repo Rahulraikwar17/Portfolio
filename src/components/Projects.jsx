@@ -10,6 +10,9 @@ import PsychedelicText from "./PsychedelicText.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const IMG_WIDTH = 1000;
+const IMG_HEIGHT = 600;
+
 const projects = [
   {
     id: 1,
@@ -197,7 +200,9 @@ const SilkBackground = () => {
     const uTime = gl.getUniformLocation(program, "uTime");
     const uLight = gl.getUniformLocation(program, "uLight");
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const state = { time: 6, lx: 0.62, ly: 0.55, tx: 0.62, ty: 0.55 };
     let raf = 0;
     let last = performance.now();
@@ -308,7 +313,6 @@ const Projects = () => {
       const heading = section.querySelector("[data-heading]");
       const dim = section.querySelector("[data-dim]");
 
-      // Heading fades and the silk dims while the first project scrolls in
       gsap
         .timeline({
           defaults: { ease: "none" },
@@ -419,9 +423,13 @@ const Projects = () => {
                     <img
                       src={project.image}
                       alt={project.title}
+                      width={IMG_WIDTH}
+                      height={IMG_HEIGHT}
+                      loading="lazy"
+                      decoding="async"
                       draggable="false"
                       onLoad={() => ScrollTrigger.refresh()}
-                      className="block h-auto w-full select-none transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                      className="block h-auto w-full select-none transition-transform duration-700 ease-out md:group-hover:scale-[1.03]"
                     />
 
                     <span
@@ -444,7 +452,10 @@ const Projects = () => {
                     {project.description}
                   </p>
 
-                  <ul aria-label="Tech stack" className="mt-6 flex flex-wrap gap-2">
+                  <ul
+                    aria-label="Tech stack"
+                    className="mt-6 flex flex-wrap gap-2"
+                  >
                     {project.skills.split(", ").map((tech) => (
                       <li
                         key={tech}
